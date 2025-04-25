@@ -4,21 +4,14 @@ import time
 import publish
 import json
 from awscrt import io, mqtt, http
+import serial.tools.list_ports
 
+# def __main__() :
 ser = serial.Serial('COM3', baudrate=9600, timeout=1)
 time.sleep(2) #안정적인 연결을 위해 시간 여유를 둠
 
 ser.write(b"ATCSM 1\r\n")
 time.sleep(1) # 연결 대기
-
-# conn = mysql.connector.connect(
-# 	port = "3310",
-#     host="localhost",
-#     user="root",
-#     password="test1234",
-#     database="ua10_data"
-# )
-# cursor = conn.cursor()
 
 flag = 0
 max_cnt = 30  #30번번 # 몇 번 받아올건지
@@ -26,9 +19,10 @@ max_cnt = 30  #30번번 # 몇 번 받아올건지
 
 publisher = publish.AwsMQTTPublish()
 
-initial_payload = json.dumps({
+temperature_payload = json.dumps({
 	"state": {
 		"reported": {
+			# "device-id" : "UA10H-CHS-24060894",
 			"temperature": 0.0,
 			"humidity": 0.0
 		}
@@ -36,27 +30,37 @@ initial_payload = json.dumps({
 })
 
 publisher.publish(
-	topic="$aws/things/KWYTEST/shadow/name/temperature/update",
-	payload=initial_payload,
+	topic="$aws/things/KWYTEST/shadow/name/UA10H-CHS-24060894/update",
+	payload=temperature_payload,
 	qos=mqtt.QoS.AT_LEAST_ONCE
 )
 
+    # print("==== Serial Port Info ====")
+    # print(f"Device      : {port.device}")
+    # print(f"Description : {port.description}")
+    # print(f"HWID        : {port.hwid}")
+    # print(f"VID:PID     : {port.vid}:{port.pid}" if port.vid and port.pid else "VID/PID: Not available")
+    # print(f"Serial No.  : {port.serial_number}")
+
 while(1):
 	line = ser.readline().decode().strip()
+	print(line)
 	if (line):
 		if line.startswith("STREAM"):
 			# 이 내용은 Iot Core Flink에서 JSON으로 변환되어 
 			line = line.replace("STREAM", "").strip()
-			print(line)
+			# print(line)
 			try:
 				stm, tmp, hmd = line.split(",")
 				payload = json.dumps({
+					"id:": "UA10H-CHS-24060894",
+					"type": "온습도",
 					"temperature": float(tmp),
 					"humidity": float(hmd)
 				})
 
 				publisher.publish(
-					topic="/temperature",
+					topic="UA10H-CHS-24060894",
 					payload=payload,
 					qos=mqtt.QoS.AT_LEAST_ONCE
 				)

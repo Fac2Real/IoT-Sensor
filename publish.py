@@ -6,6 +6,14 @@ from awsiot import mqtt_connection_builder
 import time as t
 import json
 
+# Define ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1, MESSAGE, TOPIC, and RANGE
+ENDPOINT="a2n7kxevn6fh72-ats.iot.ap-northeast-2.amazonaws.com"
+CLIENT_ID = "MSJ"
+# MQTT 인증 정보
+PATH_TO_CERTIFICATE="C:/lgCns/finalPrj-factoreal/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-certificate.pem.crt"
+PATH_TO_PRIVATE_KEY="C:/lgCns/finalPrj-factoreal/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-private.pem.key"
+PATH_TO_AMAZON_ROOT_CA_1="C:/lgCns/finalPrj-factoreal/IoTcoreCert/root.pem"
+
 MESSAGE = "Hello World"
 TOPIC = "test/testing"
 RANGE = 20
@@ -46,18 +54,3 @@ class AwsMQTTPublish:
     def __del__(self):
         disconnect_future = self.mqtt_connection.disconnect()
         print("Check disconnect", disconnect_future.result())
-        
-        
-        
-
-# Publish message to server desired number of times.
-# print('Begin Publish')
-# for i in range (RANGE):
-#     data = "{} [{}]".format(MESSAGE, i+1)
-#     message = {"message" : data}
-#     mqtt_connection.publish(topic=TOPIC, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
-#     print("Published: '" + json.dumps(message) + "' to the topic: " + "'test/testing'")
-#     t.sleep(0.1)
-# print('Publish End')
-# disconnect_future = mqtt_connection.disconnect()
-# disconnect_future.result()
