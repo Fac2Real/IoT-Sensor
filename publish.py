@@ -6,6 +6,7 @@ from awsiot import mqtt_connection_builder
 import time as t
 import json
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # Define ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1, MESSAGE, TOPIC, and RANGE
 ENDPOINT="a2n7kxevn6fh72-ats.iot.ap-northeast-2.amazonaws.com"
@@ -24,6 +25,18 @@ PATH_TO_AMAZON_ROOT_CA_1 = "C:/Users/user/Documents/카카오톡 받은 파일/I
 >>>>>>> ceafc27 (Feat: 센서 시뮬레이터 수정)
 MESSAGE = "Hello World"
 RANGE = 20
+=======
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+ENDPOINT = os.getenv("ENDPOINT")
+CLIENT_ID = os.getenv("CLIENT_ID")
+PATH_TO_CERTIFICATE = os.getenv("PATH_TO_CERT")
+PATH_TO_PRIVATE_KEY = os.getenv("PATH_TO_PRIVATE_KEY")
+PATH_TO_AMAZON_ROOT_CA_1 = os.getenv("PATH_TO_AMAZON_ROOT_CA_1")
+print(ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1)
+>>>>>>> e3ee5fb (Fix: load_env 적용)
 class AwsMQTT:
     def __init__(self, ):
         self.__setup__()
