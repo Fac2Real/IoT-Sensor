@@ -7,14 +7,22 @@ import time as t
 import json
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+>>>>>>> c2b5f63 (Fix: dotenv 설정)
 
 # Define ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1, MESSAGE, TOPIC, and RANGE
-ENDPOINT="a2n7kxevn6fh72-ats.iot.ap-northeast-2.amazonaws.com"
+ENDPOINT=os.environ.get("ENDPOINT")
 CLIENT_ID = "MSJ"
 # MQTT 인증 정보
-PATH_TO_CERTIFICATE="C:/lgCns/finalPrj-factoreal/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-certificate.pem.crt"
-PATH_TO_PRIVATE_KEY="C:/lgCns/finalPrj-factoreal/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-private.pem.key"
-PATH_TO_AMAZON_ROOT_CA_1="C:/lgCns/finalPrj-factoreal/IoTcoreCert/root.pem"
+PATH_TO_CERTIFICATE=os.environ.get("PATH_TO_CERT")
+PATH_TO_PRIVATE_KEY=os.environ.get("PATH_TO_PRIVATE_KEY")
+PATH_TO_AMAZON_ROOT_CA_1=os.environ.get("PATH_TO_AMAZON_ROOT_CA_1")
 
 =======
 ENDPOINT = "a2n7kxevn6fh72-ats.iot.ap-northeast-2.amazonaws.com"
