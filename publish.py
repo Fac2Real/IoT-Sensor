@@ -33,6 +33,7 @@ PATH_TO_AMAZON_ROOT_CA_1 = "C:/Users/user/Documents/카카오톡 받은 파일/I
 >>>>>>> ceafc27 (Feat: 센서 시뮬레이터 수정)
 MESSAGE = "Hello World"
 RANGE = 20
+<<<<<<< HEAD
 =======
 from dotenv import load_dotenv
 import os
@@ -47,6 +48,10 @@ print(ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMA
 >>>>>>> e3ee5fb (Fix: load_env 적용)
 class AwsMQTT:
     def __init__(self, ):
+=======
+class AwsMQTT:
+    def __init__(self):
+>>>>>>> 937184b (Feat: 온습도센서 시뮬레이션 구현)
         self.__setup__()
         pass
     def __setup__(self):
