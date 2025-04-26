@@ -1,5 +1,5 @@
 ---
-name: "Issue template -\U0001F41E 버그 리포트"
+name: "\U0001F41E 버그 리포트 (ISSUE-TEMPLATE).md"
 about: 발견된 버그를 재현하기 위한 단계와 환경 정보를 남기기 위한 템플릿입니다.
 title: ''
 labels: ''
