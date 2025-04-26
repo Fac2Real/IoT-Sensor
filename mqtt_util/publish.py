@@ -5,16 +5,11 @@ from awscrt import io, mqtt, auth, http
 from awsiot import mqtt_connection_builder
 import time as t
 import json
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
->>>>>>> c2b5f63 (Fix: dotenv 설정)
 
 # Define ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1, MESSAGE, TOPIC, and RANGE
 ENDPOINT=os.environ.get("ENDPOINT")
@@ -24,34 +19,11 @@ PATH_TO_CERTIFICATE=os.environ.get("PATH_TO_CERT")
 PATH_TO_PRIVATE_KEY=os.environ.get("PATH_TO_PRIVATE_KEY")
 PATH_TO_AMAZON_ROOT_CA_1=os.environ.get("PATH_TO_AMAZON_ROOT_CA_1")
 
-=======
-ENDPOINT = "a2n7kxevn6fh72-ats.iot.ap-northeast-2.amazonaws.com"
-CLIENT_ID = "KWYTEST"
-PATH_TO_CERTIFICATE = "C:/Users/user/Documents/카카오톡 받은 파일/IoTcoreCert_임시/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-certificate.pem.crt"
-PATH_TO_PRIVATE_KEY = "C:/Users/user/Documents/카카오톡 받은 파일/IoTcoreCert_임시/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-private.pem.key"
-PATH_TO_AMAZON_ROOT_CA_1 = "C:/Users/user/Documents/카카오톡 받은 파일/IoTcoreCert_임시/IoTcoreCert/root.pem"
->>>>>>> ceafc27 (Feat: 센서 시뮬레이터 수정)
 MESSAGE = "Hello World"
 RANGE = 20
-<<<<<<< HEAD
-=======
-from dotenv import load_dotenv
-import os
-load_dotenv()
 
-ENDPOINT = os.getenv("ENDPOINT")
-CLIENT_ID = os.getenv("CLIENT_ID")
-PATH_TO_CERTIFICATE = os.getenv("PATH_TO_CERT")
-PATH_TO_PRIVATE_KEY = os.getenv("PATH_TO_PRIVATE_KEY")
-PATH_TO_AMAZON_ROOT_CA_1 = os.getenv("PATH_TO_AMAZON_ROOT_CA_1")
-print(ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1)
->>>>>>> e3ee5fb (Fix: load_env 적용)
-class AwsMQTT:
-    def __init__(self, ):
-=======
 class AwsMQTT:
     def __init__(self):
->>>>>>> 937184b (Feat: 온습도센서 시뮬레이션 구현)
         self.__setup__()
         pass
     def __setup__(self):
