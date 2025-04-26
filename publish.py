@@ -5,6 +5,7 @@ from awscrt import io, mqtt, auth, http
 from awsiot import mqtt_connection_builder
 import time as t
 import json
+<<<<<<< HEAD
 
 # Define ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1, MESSAGE, TOPIC, and RANGE
 ENDPOINT="a2n7kxevn6fh72-ats.iot.ap-northeast-2.amazonaws.com"
@@ -14,11 +15,17 @@ PATH_TO_CERTIFICATE="C:/lgCns/finalPrj-factoreal/IoTcoreCert/54e5d2549e672108375
 PATH_TO_PRIVATE_KEY="C:/lgCns/finalPrj-factoreal/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-private.pem.key"
 PATH_TO_AMAZON_ROOT_CA_1="C:/lgCns/finalPrj-factoreal/IoTcoreCert/root.pem"
 
+=======
+ENDPOINT = "a2n7kxevn6fh72-ats.iot.ap-northeast-2.amazonaws.com"
+CLIENT_ID = "KWYTEST"
+PATH_TO_CERTIFICATE = "C:/Users/user/Documents/카카오톡 받은 파일/IoTcoreCert_임시/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-certificate.pem.crt"
+PATH_TO_PRIVATE_KEY = "C:/Users/user/Documents/카카오톡 받은 파일/IoTcoreCert_임시/IoTcoreCert/54e5d2549e672108375364398317635c85a2a4082c90ff9378d02a118bd41800-private.pem.key"
+PATH_TO_AMAZON_ROOT_CA_1 = "C:/Users/user/Documents/카카오톡 받은 파일/IoTcoreCert_임시/IoTcoreCert/root.pem"
+>>>>>>> ceafc27 (Feat: 센서 시뮬레이터 수정)
 MESSAGE = "Hello World"
-TOPIC = "test/testing"
 RANGE = 20
-class AwsMQTTPublish:
-    def __init__(self):
+class AwsMQTT:
+    def __init__(self, ):
         self.__setup__()
         pass
     def __setup__(self):
@@ -51,6 +58,17 @@ class AwsMQTTPublish:
         print(f"Published: {payload} to topic: {topic}")
         print('End One Published')
 
+    def subscribe(self, topic):
+        print("Start Subscribe")
+        self.mqtt_connection.subscribe(
+            topic=topic,
+            qos=mqtt.QoS.AT_LEAST_ONCE,
+            callback=self.on_message_received)
+        print("End Subscribe")
+    
+    def on_message_received(self, topic, payload, dup, qos, retain):
+        print("Received message from topic '{}': {}".format(topic, json.loads(payload)))
+    
     def __del__(self):
         disconnect_future = self.mqtt_connection.disconnect()
         print("Check disconnect", disconnect_future.result())

@@ -1,6 +1,8 @@
-import mysql.connector
 import serial
 import time
+
+import serial.tools
+import serial.tools.list_ports
 import publish
 import json
 from awscrt import io, mqtt, http
@@ -9,7 +11,7 @@ import serial.tools.list_ports
 # def __main__() :
 ser = serial.Serial('COM3', baudrate=9600, timeout=1)
 time.sleep(2) #안정적인 연결을 위해 시간 여유를 둠
-
+serial.tools.list_ports
 ser.write(b"ATCSM 1\r\n")
 time.sleep(1) # 연결 대기
 
@@ -17,7 +19,7 @@ flag = 0
 max_cnt = 30  #30번번 # 몇 번 받아올건지
 # query = "INSERT INTO ua10_table (temperature, humidity) VALUES (%s, %s)"
 
-publisher = publish.AwsMQTTPublish()
+publisher = publish.AwsMQTT()
 
 temperature_payload = json.dumps({
 	"state": {
