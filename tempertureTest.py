@@ -55,7 +55,7 @@ while(1):
 			try:
 				stm, tmp, hmd = line.split(",")
 				payload = json.dumps({
-					"id:": "UA10H-CHS-24060894",
+					"id": "UA10H-CHS-24060894",
 					"type": "온습도",
 					"temperature": float(tmp),
 					"humidity": float(hmd)
