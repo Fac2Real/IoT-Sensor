@@ -5,7 +5,7 @@ import argparse
 import json
 from awscrt import mqtt
 from mqtt_util.publish import AwsMQTT
-from simulate_type.simulate_list import generate_temp_data, generate_humidity_data, generate_humidity_temp_data, generate_wearable_data
+from simulate_type.simulate_list import generate_temp_data, generate_humidity_data, generate_humidity_temp_data, generate_wearable_data, generate_vibration_data, generate_current_data 
 
 # 데이터 생성 함수 선택
 def select_data_generator(simulator_type):
@@ -17,6 +17,10 @@ def select_data_generator(simulator_type):
         return lambda idx: generate_humidity_temp_data(idx)
     elif simulator_type == "wearable": 
         return lambda idx: generate_wearable_data(idx)
+    elif simulator_type == "vibration":
+        return lambda idx: generate_vibration_data(idx)
+    elif simulator_type == "current":
+        return lambda idx: generate_current_data(idx)
     else:
         raise ValueError(f"Unknown simulator type: {simulator_type}")
 
@@ -59,7 +63,7 @@ def main():
     parser = argparse.ArgumentParser(description="Simulate various data types and publish them via MQTT.")
     parser.add_argument("--count", type=int, default=10, help="Number of data entries to generate.")
     parser.add_argument("--interval", type=float, default=1.0, help="Interval between data entries in seconds.")
-    parser.add_argument("--simulator", type=str, choices=["temp", "humidity","humidity_temp"], default="humidity_temp", help="Type of data simulator.")
+    parser.add_argument("--simulator", type=str, choices=["temp", "humidity","humidity_temp", "vibration", "current" ], default="humidity_temp", help="Type of data simulator.")
     parser.add_argument("--sensor_num", type=int, default=2, help="Number of sensors to simulate.")
     args = parser.parse_args()
 
@@ -71,3 +75,6 @@ def main():
     # 시뮬레이션 실행, 콜백 함수 전달
     simulate_data(args.count, args.interval, args.sensor_num,callback=mqtt_publish_callback, simulator_type=args.simulator)
 
+# 테스트용 메인 함수 (index.py에도 존재함)
+if __name__ == "__main__":
+    main()
