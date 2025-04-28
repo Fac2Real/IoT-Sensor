@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Module Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "service.simulation.simulateTest",  // 실행할 모듈 경로
+            "cwd": "${workspaceFolder}",          // 작업 디렉토리
+            "console": "integratedTerminal",      // 통합 터미널에서 실행
+            "justMyCode": false                   // 외부 라이브러리 코드도 디버깅
+        }
+    ]
+}
