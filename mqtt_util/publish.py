@@ -48,25 +48,28 @@ class AwsMQTT:
         print("Connected!") 
 
     def publish(self , topic, payload, qos): 
-        print('Start One Published')
         self.mqtt_connection.publish(
             topic = topic, 
             payload = payload, 
             qos = qos)
         print(f"Published: {payload} to topic: {topic}")
-        print('End One Published')
 
-    def subscribe(self, topic):
-        print("Start Subscribe")
+    def subscribe(self, topic, qos, callback):
+        print(f"topic Subscribe: {topic} ")
         self.mqtt_connection.subscribe(
             topic=topic,
-            qos=mqtt.QoS.AT_LEAST_ONCE,
-            callback=self.on_message_received)
-        print("End Subscribe")
+            qos=qos,
+            callback=callback)
     
-    def on_message_received(self, topic, payload, dup, qos, retain):
-        print("Received message from topic '{}': {}".format(topic, json.loads(payload)))
+    # 
+    def disconnect(self):
+        print("Disconnecting...")
+        disconnect_future = self.mqtt_connection.disconnect()
+        disconnect_future.result()
+        print("Disconnected!")
+
     
     def __del__(self):
         disconnect_future = self.mqtt_connection.disconnect()
-        print("Check disconnect", disconnect_future.result())
+        disconnect_future.result()
+        print("Disconnected!")
