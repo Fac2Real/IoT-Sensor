@@ -38,16 +38,18 @@ class ExampleSimulator(SimulatorInterface2):
     # 예) 온도, 습도, 진동, 전류 등등
     ################################################
     def _generate_data(self) -> dict:
-        """ 데이터 생성 메서드 """
         return {
-            "id": self.sensor_id,
-            "type": self.type,
-            "temperature": round(random.uniform(20.0 + self.idx, 30.0 + self.idx), 2)
+            "zoneId": self.space_id,
+            "equipId": self.manufacture_id,
+            "sensorId": self.sensor_id,
+            "sensorType": self.type,
+            "val": round(random.uniform(20.0 + self.idx, 30.0 + self.idx), 2)
         }
         
     
     ################################################
     # 제어 로직을 정의 ( shadow의 desired 상태를 구독하여 제어하는 로직을 구현할 예정)
+    # sprint 2 에서 더 구체화 예정
     ################################################
     def _apply_desired_state(self, desired_state):
         """ 

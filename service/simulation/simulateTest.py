@@ -62,7 +62,7 @@ def main():
     parser.add_argument("--interval", type=float, default=5.0, help="Interval between data entries in seconds.")
     parser.add_argument("--manufacture_id", type=str, default="SBID-001", help="Manufacture ID.")
     parser.add_argument("--space_id", type=str, default="PID-001", help="Space ID.")
-    parser.add_argument("--simulator", type=str, choices=["temp", "humidity","humidity_temp", "vibration", "current" ], default="example", help="Type of data simulator.")
+    parser.add_argument("--simulator", type=str, choices=["temp", "humidity", "vibration", "current" , "dust" ], default="example", help="Type of data simulator.")
     parser.add_argument("--sensor_num", type=int, default=2, help="Number of sensors to simulate.")
     args = parser.parse_args()
 

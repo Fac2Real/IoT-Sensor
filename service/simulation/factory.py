@@ -1,8 +1,8 @@
 from service.simulation import TempSimulator
 from service.simulation.HumiditySimulator import HumiditySimulator
-from service.simulation.HumidityTempSimulator import HumidityTempSimulator
 from service.simulation.VibrationSimulator import VibrationSimulator
 from service.simulation.CurrentSimulator import CurrentSimulator
+from service.simulation.DustSimulator import DustSimulator
 from service.simulation.ExampleSimulator import ExampleSimulator
 from mqtt_util.publish import AwsMQTT
 from typing import List
@@ -15,13 +15,15 @@ def get_simulator(simulator_type: str, idx: int, space_id: str, manufacture_id: 
         if simulator_type == "temp":
             simulator_entity_list.append(TempSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
         elif simulator_type == "humidity":
-            simulator_entity_list.append(HumiditySimulator())
-        elif simulator_type == "humidity_temp":
-            simulator_entity_list.append(HumidityTempSimulator())
+            simulator_entity_list.append(HumiditySimulator(i, space_id, manufacture_id, interval, msg_count, conn))
+        # elif simulator_type == "humidity_temp":
+        #     simulator_entity_list.append(HumidityTempSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
         elif simulator_type == "vibration":
-            simulator_entity_list.append(VibrationSimulator())
+            simulator_entity_list.append(VibrationSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
         elif simulator_type == "current":
-            simulator_entity_list.append(CurrentSimulator())
+            simulator_entity_list.append(CurrentSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
+        elif simulator_type == "dust":
+            simulator_entity_list.append(DustSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
         elif simulator_type == "example":
             simulator_entity_list.append(ExampleSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
         else:
