@@ -1,4 +1,4 @@
-from .SimulationInterface2 import SimulatorInterface2
+from .SimulatorInterface2 import SimulatorInterface2
 from simulate_type.simulate_list import generate_temp_data
 import random
 

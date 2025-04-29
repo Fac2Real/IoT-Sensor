@@ -7,7 +7,7 @@ from service.simulation.ExampleSimulator import ExampleSimulator
 from mqtt_util.publish import AwsMQTT
 from typing import List
 # from .SimulatorInterface import SimulatorInterface
-from .SimulationInterface2 import SimulatorInterface2
+from .SimulatorInterface2 import SimulatorInterface2
 def get_simulator(simulator_type: str, idx: int, space_id: str, manufacture_id: str, interval: int = 5, msg_count: int = 10, conn:AwsMQTT=None)-> List[SimulatorInterface2]:
     
     simulator_entity_list = []
