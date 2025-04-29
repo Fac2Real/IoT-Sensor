@@ -10,26 +10,34 @@ from mqtt_util.publish import AwsMQTT
 from .factory import get_simulator
 
 # 시뮬레이션 함수
-def simulate_data(count, interval, sensor_num=2,callback=None, simulator_type="humidity_temp"):
+def simulate_data(count, interval, manufacture_id, space_id, sensor_num=2, conn: AwsMQTT = None, simulator_type="temp"):
     try:
         print(f"Simulating {simulator_type} data stream for {count} entries with {interval} second intervals... (Press Ctrl+C to stop)")
-        # 데이터 생성 함수 선택
-        # 시뮬레이터를 타입에 맞게 가져올  인터페이스의 함수 호출
-        simulator = get_simulator(simulator_type)
-        # 첫 번째 센서의 ID를 사용하여 토픽 이름 생성
-        topic_name = simulator.generate_data(0)["id"]
-        for _ in range(count):
-            for sensor_idx in range(sensor_num):
-                # 선택된 데이터 생성 함수 호출
-                # generate_data(sensor_idx)와 같은 형태로 호출됨
-                payload = simulator.generate_data(sensor_idx)
-                # 콜백이 주어지면 해당 콜백을 호출하여 데이터를 전달
-                if callback and topic_name:
-                    callback(payload, topic_name)
-            time.sleep(interval)
+        
+        # 시뮬레이터 생성
+        simulators = get_simulator(
+            idx=sensor_num,
+            interval=interval,
+            msg_count=count,
+            manufacture_id=manufacture_id,
+            space_id=space_id,
+            simulator_type=simulator_type,
+            conn=conn
+        )
+
+        for simulator in simulators:
+            simulator.start_publishing()
+
+        # 스레드 상태를 모니터링
+        while any(sim.thread.is_alive() for sim in simulators):
+            time.sleep(0.1)
+
     except KeyboardInterrupt:
         print("\nSimulation stopped by user.")
-        sys.exit(0)
+        for simulator in simulators:
+            simulator.stop()
+    finally:
+        conn.disconnect()
 
 # 콜백 함수: MQTT로 데이터를 전송
 def mqtt_publish_callback(data, topic):
@@ -49,9 +57,12 @@ def main():
     global conn
     # CLI 매개변수 파싱 # 
     parser = argparse.ArgumentParser(description="Simulate various data types and publish them via MQTT.")
+    
     parser.add_argument("--count", type=int, default=10, help="Number of data entries to generate.")
-    parser.add_argument("--interval", type=float, default=1.0, help="Interval between data entries in seconds.")
-    parser.add_argument("--simulator", type=str, choices=["temp", "humidity","humidity_temp", "vibration", "current" ], default="humidity_temp", help="Type of data simulator.")
+    parser.add_argument("--interval", type=float, default=5.0, help="Interval between data entries in seconds.")
+    parser.add_argument("--manufacture_id", type=str, default="SBID-001", help="Manufacture ID.")
+    parser.add_argument("--space_id", type=str, default="PID-001", help="Space ID.")
+    parser.add_argument("--simulator", type=str, choices=["temp", "humidity","humidity_temp", "vibration", "current" ], default="example", help="Type of data simulator.")
     parser.add_argument("--sensor_num", type=int, default=2, help="Number of sensors to simulate.")
     args = parser.parse_args()
 
@@ -61,7 +72,15 @@ def main():
     # Shadow에 디바이스 등록
     
     # 시뮬레이션 실행, 콜백 함수 전달
-    simulate_data(args.count, args.interval, args.sensor_num,callback=mqtt_publish_callback, simulator_type=args.simulator)
+    simulate_data(
+        count=args.count, 
+        interval=args.interval,
+        space_id=args.space_id,
+        manufacture_id=args.manufacture_id,
+        sensor_num=args.sensor_num,
+        conn=conn, 
+        simulator_type=args.simulator
+    )
 
 # 테스트용 메인 함수 (index.py에도 존재함)
 if __name__ == "__main__":
