@@ -1,0 +1,44 @@
+{
+    "devices": [
+        {
+            "count": 5,
+            "interval": 10.0,
+            "manufacture_id": "",
+            "space_id": "PID-789",
+            "simulator": "humidity",
+            "sensor_num": 2
+        },
+        {
+            "count": 5,
+            "interval": 10.0,
+            "manufacture_id": "SBID-124",
+            "space_id": "PID-800",
+            "simulator": "vibration",
+            "sensor_num": 2
+        },
+        {
+            "count": 0,
+            "interval": 0.0,
+            "manufacture_id": "",
+            "space_id": "PID-000",
+            "simulator": "temp",
+            "sensor_num": 0
+        },
+        {
+            "count": 0,
+            "interval": 0.0,
+            "manufacture_id": "",
+            "space_id": "PID-000",
+            "simulator": "current",
+            "sensor_num": 0
+        },
+        {
+            "count": 0,
+            "interval": 0.0,
+            "manufacture_id": "",
+            "space_id": "PID-000",
+            "simulator": "dust",
+            "sensor_num": 0
+        }
+    ]
+}
