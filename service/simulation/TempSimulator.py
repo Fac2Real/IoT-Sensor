@@ -19,7 +19,7 @@ class humidSimulator(SimulatorInterface2):
         # 시뮬레이터 마다 개별적으로 사용하는 속성(토픽, 수집 데이터 초기값) 
         #########################################
 
-        self.sensor_id = f"UA10H-SUP-2406089{idx}" # 센서 ID
+        self.sensor_id = f"UA10T-TEM-2406089{idx}" # 센서 ID
         self.type = "temp" # 센서 타입
         # shadow 등록용 토픽
         self.shadow_regist_topic_name = f"$aws/things/sensor/shadow/name/{self.sensor_id}/update"

@@ -4,6 +4,7 @@ from service.simulation.VibrationSimulator import VibrationSimulator
 from service.simulation.CurrentSimulator import CurrentSimulator
 from service.simulation.DustSimulator import DustSimulator
 from service.simulation.ExampleSimulator import ExampleSimulator
+from service.simulation.VocSimulator import VocSimulator
 from mqtt_util.publish import AwsMQTT
 from typing import List
 # from .SimulatorInterface import SimulatorInterface
@@ -26,6 +27,8 @@ def get_simulator(simulator_type: str, idx: int, space_id: str, manufacture_id: 
             simulator_entity_list.append(DustSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
         elif simulator_type == "example":
             simulator_entity_list.append(ExampleSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
+        elif simulator_type == "voc":
+            simulator_entity_list.append(VocSimulator(i, space_id, manufacture_id, interval, msg_count, conn))
         else:
             raise ValueError(f"Unknown simulator type: {simulator_type}")
     return simulator_entity_list

@@ -1,5 +1,4 @@
 from .SimulatorInterface2 import SimulatorInterface2
-from simulate_type.simulate_list import generate_humidity_data
 import random
 
 class HumiditySimulator(SimulatorInterface2):
@@ -20,7 +19,7 @@ class HumiditySimulator(SimulatorInterface2):
         # 시뮬레이터 마다 개별적으로 사용하는 속성(토픽, 수집 데이터 초기값) 
         #########################################
 
-        self.sensor_id = f"UA10H-SUP-2406089{idx}" # 센서 ID
+        self.sensor_id = f"UA10H-HUM-2406089{idx}" # 센서 ID
         self.type = "humid" # 센서 타입
         # shadow 등록용 토픽
         self.shadow_regist_topic_name = f"$aws/things/sensor/shadow/name/{self.sensor_id}/update"
@@ -29,7 +28,7 @@ class HumiditySimulator(SimulatorInterface2):
         self.shadow_desired_topic_name = f"$aws/things/sensor/shadow/name/{self.sensor_id}/update/desired"
         
         # 센서 데이터 publish용 토픽
-        self.topic_name = f"{space_id}/{manufacture_id}/{self.sensor_id}/{self.type}"
+        self.topic_name = f"sensor/{space_id}/{manufacture_id}/{self.sensor_id}/{self.type}"
 
         self.target_temperature = None # 초기값 설정(shadow 용)
         
