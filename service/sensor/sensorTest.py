@@ -3,7 +3,7 @@ import time
 
 import serial.tools
 import serial.tools.list_ports
-import publish
+from mqtt_util.publish import AwsMQTT
 import json
 from awscrt import io, mqtt, http
 import serial.tools.list_ports
@@ -19,7 +19,7 @@ flag = 0
 max_cnt = 30  #30번번 # 몇 번 받아올건지
 # query = "INSERT INTO ua10_table (temperature, humidity) VALUES (%s, %s)"
 
-publisher = publish.AwsMQTT()
+publisher = AwsMQTT()
 
 temperature_payload = json.dumps({
 	"state": {
