@@ -12,7 +12,7 @@ from .factory import get_simulator
 
 conn = AwsMQTT()
 
-# 스레드에서 실행될 시뮬레이션 함수수
+# 스레드에서 실행될 시뮬레이션 함수
 def run_simulator(simulator, count, interval):
     for _ in range(count):
         data = simulator.start_publishing()

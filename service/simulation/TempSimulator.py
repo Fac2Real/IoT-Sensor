@@ -1,7 +1,7 @@
 from .SimulatorInterface2 import SimulatorInterface2
 import random
 
-class humidSimulator(SimulatorInterface2):
+class TempSimulator(SimulatorInterface2):
     def __init__(self, idx: int, space_id:str, manufacture_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         #########################################
         # 시뮬레이터에서 공통적으로 사용하는 속성
@@ -22,10 +22,10 @@ class humidSimulator(SimulatorInterface2):
         self.sensor_id = f"UA10T-TEM-2406089{idx}" # 센서 ID
         self.type = "temp" # 센서 타입
         # shadow 등록용 토픽
-        self.shadow_regist_topic_name = f"$aws/things/sensor/shadow/name/{self.sensor_id}/update"
+        self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         
         # shadow 제어 명령 구독용 토픽
-        self.shadow_desired_topic_name = f"$aws/things/sensor/shadow/name/{self.sensor_id}/update/desired"
+        self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         
         # 센서 데이터 publish용 토픽
         self.topic_name = f"sensor/{space_id}/{manufacture_id}/{self.sensor_id}/{self.type}"

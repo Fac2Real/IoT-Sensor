@@ -1,4 +1,4 @@
-from service.simulation import TempSimulator
+from service.simulation.TempSimulator import TempSimulator
 from service.simulation.HumiditySimulator import HumiditySimulator
 from service.simulation.VibrationSimulator import VibrationSimulator
 from service.simulation.CurrentSimulator import CurrentSimulator

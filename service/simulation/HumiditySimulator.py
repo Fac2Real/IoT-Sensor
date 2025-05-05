@@ -21,9 +21,9 @@ class HumiditySimulator(SimulatorInterface2):
         self.sensor_id = f"UA10H-HUM-2406089{idx}" # 센서 ID
         self.type = "humid" # 센서 타입
         # shadow 등록용 토픽
-        self.shadow_regist_topic_name = f"$aws/things/sensor/shadow/name/{self.sensor_id}/update"
+        self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         # shadow 제어 명령 구독용 토픽
-        self.shadow_desired_topic_name = f"$aws/things/sensor/shadow/name/{self.sensor_id}/update/desired"
+        self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         # 센서 데이터 publish용 토픽
         self.topic_name = f"sensor/{space_id}/{manufacture_id}/{self.sensor_id}/{self.type}"
         self.target_temperature = None # 초기값 설정(shadow 용)
