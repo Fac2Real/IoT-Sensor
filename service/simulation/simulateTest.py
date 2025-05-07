@@ -22,7 +22,7 @@ def run_simulator(simulator, count, interval):
 # 시뮬레이션 함수
 def run_simulation_from_json(json_file_path):
     # JSON 파일 읽기
-    with open(json_file_path, 'r') as file:
+    with open(json_file_path, 'r', encoding="utf-8") as file:
         config = json.load(file)
 
     devices = config.get("devices", [])
