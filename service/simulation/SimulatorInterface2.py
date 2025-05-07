@@ -73,8 +73,8 @@ class SimulatorInterface2(ABC):
             "state": {
                 "reported": {
                     "sensorId": self.sensor_id,
-                    "zone_id": self.zone_id,
-                    "equip_id": self.equip_id,
+                    "zoneId": self.zone_id,
+                    "equipId": self.equip_id,
                     "type": self.type,
                     "status": status,
                 }
