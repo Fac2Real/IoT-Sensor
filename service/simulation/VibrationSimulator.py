@@ -3,12 +3,12 @@ from simulate_type.simulate_list import generate_vibration_data
 import random
 
 class VibrationSimulator(SimulatorInterface2):
-    def __init__(self, idx: int, space_id:str, manufacture_id:str, interval:int = 5, msg_count:int = 10, conn=None):
+    def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         # 시뮬레이터에서 공통적으로 사용하는 속성
         super().__init__(
             idx=idx, 
-            space_id=space_id, 
-            manufacture_id=manufacture_id, 
+            zone_id=zone_id, 
+            equip_id=equip_id, 
             interval=interval, 
             msg_count=msg_count, 
             conn=conn
@@ -18,14 +18,14 @@ class VibrationSimulator(SimulatorInterface2):
         self.type = "vibration" # Sensor type
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
-        self.topic_name = f"sensor/{space_id}/{manufacture_id}/{self.sensor_id}/{self.type}"
+        self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
         self.target_vibration = None # Initial value for shadow)
 
     # 데이터 생성 로직을 정의 (시뮬레이터 마다 다르게 구현)
     def _generate_data(self) -> dict:
         return {
-            "zoneId": self.space_id,
-            "equipId": self.manufacture_id,
+            "zoneId": self.zone_id,
+            "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
             "val": round(random.uniform(0.1 + self.idx, 10.0 + self.idx), 2)
