@@ -3,24 +3,24 @@
         {
             "count": 1,
             "interval": 10.0,
-            "manufacture_id": "SBID-124",
-            "space_id": "PID-711",
+            "equip_id": "SBID-124",
+            "zone_id": "PID-711",
             "simulator": "temp",
             "sensor_num": 2
         },
         {
             "count": 1,
             "interval": 10.0,
-            "manufacture_id": "SBID-125",
-            "space_id": "PID-790",
+            "equip_id": "SBID-125",
+            "zone_id": "PID-790",
             "simulator": "humidity",
             "sensor_num": 3
         },
         {
             "count": 1,
             "interval": 10.0,
-            "manufacture_id": "SBID-126",
-            "space_id": "PID-791",
+            "equip_id": "SBID-126",
+            "zone_id": "PID-791",
             "simulator": "vibration",
             "sensor_num": 4
         }
