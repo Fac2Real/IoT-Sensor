@@ -22,7 +22,7 @@ def run_simulator(simulator, count, interval):
 # 시뮬레이션 함수
 def run_simulation_from_json(json_file_path):
     # JSON 파일 읽기
-    with open(json_file_path, 'r') as file:
+    with open(json_file_path, 'r', encoding="utf-8") as file:
         config = json.load(file)
 
     devices = config.get("devices", [])
@@ -35,8 +35,8 @@ def run_simulation_from_json(json_file_path):
     for device in devices:
         count = device.get("count", 10)
         interval = device.get("interval", 1.0)
-        manufacture_id = device.get("manufacture_id", "UNKNOWN")
-        space_id = device.get("space_id", "UNKNOWN")
+        equip_id = device.get("equip_id", "UNKNOWN")
+        zone_id = device.get("zone_id", "UNKNOWN")
         simulator_type = device.get("simulator", "temp")
         sensor_num = device.get("sensor_num", 1)
 
@@ -47,8 +47,8 @@ def run_simulation_from_json(json_file_path):
             conn = conn,
             simulator_type=simulator_type,
             idx=sensor_num,
-            space_id=space_id,
-            manufacture_id=manufacture_id,
+            zone_id=zone_id,
+            equip_id=equip_id,
             interval=interval,
             msg_count=count
         )
