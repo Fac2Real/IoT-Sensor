@@ -18,7 +18,23 @@ def run_simulator(simulator, count, interval):
         data = simulator.start_publishing()
         print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
         time.sleep(interval)
+        
+def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, space_id, manufacture_id):
+    simulators = get_simulator(
+        conn=AwsMQTT(),
+        simulator_type=simulator_type,
+        idx=sensor_num,
+        space_id=space_id,
+        manufacture_id=manufacture_id,
+        interval=interval,
+        msg_count=count
+    )
 
+    for simulator in simulators:
+        for _ in range(count):
+            data = simulator.start_publishing()
+            print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
+            time.sleep(interval)
 # 시뮬레이션 함수
 def run_simulation_from_json(json_file_path):
     # JSON 파일 읽기
