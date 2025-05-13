@@ -2,14 +2,14 @@ from .SimulatorInterface2 import SimulatorInterface2
 import random
 
 class HumiditySimulator(SimulatorInterface2):
-    def __init__(self, idx: int, space_id:str, manufacture_id:str, interval:int = 5, msg_count:int = 10, conn=None):
+    def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         #########################################
         # 시뮬레이터에서 공통적으로 사용하는 속성
         #########################################
         super().__init__(
             idx=idx, 
-            space_id=space_id, 
-            manufacture_id=manufacture_id, 
+            zone_id=zone_id, 
+            equip_id=equip_id, 
             interval=interval, 
             msg_count=msg_count, 
             conn=conn
@@ -25,7 +25,7 @@ class HumiditySimulator(SimulatorInterface2):
         # shadow 제어 명령 구독용 토픽
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         # 센서 데이터 publish용 토픽
-        self.topic_name = f"sensor/{space_id}/{manufacture_id}/{self.sensor_id}/{self.type}"
+        self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
         self.target_temperature = None # 초기값 설정(shadow 용)
         
     ################################################z
@@ -35,8 +35,8 @@ class HumiditySimulator(SimulatorInterface2):
     def _generate_data(self) -> dict:
         """ 데이터 생성 메서드 """
         return {
-            "zoneId": self.space_id,
-            "equipId": self.manufacture_id,
+            "zoneId": self.zone_id,
+            "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
             "val": round(random.uniform(20.0 + self.idx, 80.0 + self.idx), 2)
