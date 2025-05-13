@@ -4,6 +4,7 @@ import json
 import threading
 from mqtt_util.publish import AwsMQTT
 import time
+from scipy.stats import truncnorm
 
 class SimulatorInterface2(ABC):
     def __init__(self, idx: int, zone_id: str, equip_id: str, interval: int, msg_count: int, conn:AwsMQTT=None): # 센서 idx를 받기
@@ -121,3 +122,15 @@ class SimulatorInterface2(ABC):
             
     def stop(self):
         self.stop_event.set() # 스레드 종료 이벤트 설정
+
+    def generate_truncated_normal(self, mu: float, sigma: float, lower: float = None, upper: float = None) -> float:
+        # 기본값 설정: 평균 이상의 값만 생성
+        if lower is None:
+            lower = mu
+        if upper is None:
+            upper = mu + 3 * sigma  # 거의 대부분의 값 포함 (필요시 조정)
+
+        # truncnorm은 정규화된 구간 [a, b]를 사용하므로 변환 필요
+        a, b = (lower - mu) / sigma, (upper - mu) / sigma
+        value = truncnorm.rvs(a, b, loc=mu, scale=sigma)
+        return round(value, 2)

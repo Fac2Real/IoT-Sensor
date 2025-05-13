@@ -39,7 +39,7 @@ class HumiditySimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(random.uniform(20.0 + self.idx, 80.0 + self.idx), 2)
+            "val": round(random.gauss(mu = 11.68, sigma = 29.38), 2) # 0: 60이하,1: 60초과, 2: 80 초과과
         }
         
     ################################################
