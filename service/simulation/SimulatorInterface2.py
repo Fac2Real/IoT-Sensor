@@ -6,10 +6,10 @@ from mqtt_util.publish import AwsMQTT
 import time
 
 class SimulatorInterface2(ABC):
-    def __init__(self, idx: int, space_id: str, manufacture_id: str, interval: int, msg_count: int, conn:AwsMQTT=None): # 센서 idx를 받기
+    def __init__(self, idx: int, zone_id: str, equip_id: str, interval: int, msg_count: int, conn:AwsMQTT=None): # 센서 idx를 받기
         self.idx = idx # 센서 번호
-        self.space_id = space_id # 공간 ID
-        self.manufacture_id = manufacture_id # 설비 ID
+        self.zone_id = zone_id # 공간 ID
+        self.equip_id = equip_id # 설비 ID
         self.interval = interval # publish 주기
         self.msg_count = msg_count # publish 횟수
         self.conn = conn # 시뮬레이터 별로 생성된 MQTT 연결 객체를 singleton으로 사용하기 위함    
@@ -73,8 +73,8 @@ class SimulatorInterface2(ABC):
             "state": {
                 "reported": {
                     "sensorId": self.sensor_id,
-                    "spaceId": self.space_id,
-                    "manufactureId": self.manufacture_id,
+                    "zoneId": self.zone_id,
+                    "equipId": self.equip_id,
                     "type": self.type,
                     "status": status,
                 }
