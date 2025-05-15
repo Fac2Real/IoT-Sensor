@@ -1,5 +1,7 @@
 from .SimulatorInterface2 import SimulatorInterface2
 import random
+from scipy.stats import truncnorm
+
 
 class TempSimulator(SimulatorInterface2):
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
@@ -32,6 +34,17 @@ class TempSimulator(SimulatorInterface2):
 
         self.target_temperature = None # 초기값 설정(shadow 용)
         
+        self.mu = 25  # 평균 온도 (정상 범위: 18~21℃)
+        self.sigma = 10  # 표준편차 (온도의 변동폭)
+        
+        # 절단 범위 설정 (최소값 -35℃, 최대값 50℃로 설정)
+        self.lower = -35
+        self.upper = 50
+        
+        # 정규분포 범위의 a, b 값 계산
+        self.a = (self.lower - self.mu) / self.sigma
+        self.b = (self.upper - self.mu) / self.sigma
+        
     ################################################z
     # 데이터 생성 로직을 정의 (시뮬레이터 마다 다르게 구현)
     # 예) 온도, 습도, 진동, 전류 등등
@@ -43,7 +56,7 @@ class TempSimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(random.uniform(20.0 + self.idx, 80.0 + self.idx), 2)
+            "val": round(truncnorm.rvs(self.a, self.b, loc=self.mu, scale=self.sigma), 2)
         }
         
     ################################################

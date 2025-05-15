@@ -1,5 +1,6 @@
 from .SimulatorInterface2 import SimulatorInterface2
 import random
+from scipy.stats import truncnorm
 
 class DustSimulator(SimulatorInterface2):
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
@@ -19,6 +20,14 @@ class DustSimulator(SimulatorInterface2):
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
         self.target_current = None  # 초기값 설정(shadow 용)   
+        
+        self.mu = 180  # 평균 미세먼지 수치
+        self.sigma = 60  # 표준편차
+        self.lower = 0
+        self.upper = self.mu + 3 * self.sigma
+
+        self.a = (self.lower - self.mu) / self.sigma
+        self.b = (self.upper - self.mu) / self.sigma
 
     # 데이터 생성 로직 정의 
     def _generate_data(self) -> dict:
@@ -27,7 +36,7 @@ class DustSimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(random.uniform(5.0 + self.idx, 50.0 + self.idx), 2)
+            "val": round(truncnorm.rvs(self.a, self.b, loc=self.mu, scale=self.sigma), 2)
         }
     
     ################################################

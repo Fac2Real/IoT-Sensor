@@ -1,6 +1,6 @@
 from .SimulatorInterface2 import SimulatorInterface2
 from simulate_type.simulate_list import generate_current_data
-import random
+from scipy.stats import truncnorm
 
 class CurrentSimulator(SimulatorInterface2):
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
@@ -20,7 +20,14 @@ class CurrentSimulator(SimulatorInterface2):
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
         self.target_current = None  # 초기값 설정(shadow 용)   
-
+        self.mu = 62.51
+        self.sigma = 33.76
+        lower = 0
+        upper = self.mu + 3 * self.sigma
+        self.a = (lower - self.mu) / self.sigma
+        self.b = (upper - self.mu) / self.sigma
+        
+        
     # 데이터 생성 로직 정의 
     def _generate_data(self) -> dict:
         return {
@@ -28,7 +35,8 @@ class CurrentSimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(random.uniform(0.1 + self.idx, 10.0 + self.idx), 2)
+            # "val": round(random.uniform(0.1 + self.idx, 10.0 + self.idx), 2)
+            "val": round(truncnorm.rvs(self.a, self.b, loc=self.mu, scale=self.sigma), 2) # 0: 7, 1: 7이상, 2: 30 이상 최소값은 0 
         }
     
     ################################################
