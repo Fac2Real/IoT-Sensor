@@ -81,5 +81,5 @@ def run_simulation_from_json(json_file_path):
 
 if __name__ == "__main__":
     # JSON 파일 경로
-    json_file_path = "service/simulation/simulation_cconfig.json"
+    json_file_path = "simulation_cconfig.json"
     run_simulation_from_json(json_file_path)
