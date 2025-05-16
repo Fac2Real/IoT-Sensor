@@ -18,7 +18,7 @@ class HumiditySimulator(SimulatorInterface2):
         #########################################
         # 시뮬레이터 마다 개별적으로 사용하는 속성(토픽, 수집 데이터 초기값) 
         #########################################
-        self.sensor_id = f"UA10H-HUM-2406089{idx}" # 센서 ID
+        self.sensor_id = f"UA10H-HUM-3406089{idx}" # 센서 ID
         self.type = "humid" # 센서 타입
         # shadow 등록용 토픽
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
@@ -39,7 +39,7 @@ class HumiditySimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(random.gauss(mu = 11.68, sigma = 29.38), 2) # 0: 60이하,1: 60초과, 2: 80 초과과
+            "val": round(random.uniform(20.0 + self.idx, 80.0 + self.idx), 2)
         }
         
     ################################################

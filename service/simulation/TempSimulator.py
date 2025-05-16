@@ -49,14 +49,39 @@ class TempSimulator(SimulatorInterface2):
     # 데이터 생성 로직을 정의 (시뮬레이터 마다 다르게 구현)
     # 예) 온도, 습도, 진동, 전류 등등
     ################################################
+    def _reset_state(self):
+        #"""시뮬레이터 시작 시 초기값 한 번 계산"""
+        first = truncnorm.rvs(self.a, self.b, loc=self.mu, scale=self.sigma/3)
+        self.prev_val = round(first, 2)
+
     def _generate_data(self) -> dict:
-        """ 데이터 생성 메서드 """
+        if not hasattr(self, "prev_val"):      # 최초 1회만
+            self._reset_state()
+
+        # ===== 1) 정상 구간 값 생성 =====
+        drift_strength = 0.1 
+                         # 평균으로 끌어당기는 계수 θ
+        mean_revert   = self.mu + (self.prev_val - self.mu) * (1 - drift_strength)
+
+        small_sigma   = self.sigma / 10       # ✔ 작은 변동폭
+        val           = random.gauss(mean_revert, small_sigma)
+
+        # ===== 2) 이상치 확률 p% =====
+        if random.random() < 0.03:            # 3 % 정도?
+            val = random.gauss(self.mu, self.sigma)  # 큰 σ로 튀기기
+
+        # ===== 3) 절단 & 반올림 =====
+        val = max(self.lower, min(self.upper, val))
+        val = round(val, 2)
+
+        self.prev_val = val                   # 직전 값 저장
+
         return {
-            "zoneId": self.zone_id,
-            "equipId": self.equip_id,
-            "sensorId": self.sensor_id,
+            "zoneId":     self.zone_id,
+            "equipId":    self.equip_id,
+            "sensorId":   self.sensor_id,
             "sensorType": self.type,
-            "val": round(truncnorm.rvs(self.a, self.b, loc=self.mu, scale=self.sigma), 2)
+            "val":        val,
         }
         
     ################################################

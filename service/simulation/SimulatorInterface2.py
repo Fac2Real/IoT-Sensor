@@ -95,10 +95,13 @@ class SimulatorInterface2(ABC):
         
         try:
             for _ in range(self.msg_count):
-                if self.stop_event.is_set():
-                    break
-                self._publish_data()
-                time.sleep(self.interval)
+                try:
+                    if self.stop_event.is_set():
+                        break
+                    self._publish_data()
+                    time.sleep(self.interval)
+                except Exception as e:
+                    print(f"Error in publish loop: {e}")
         finally:
             self._update_shadow(status="OFF")
     ########################################################################################

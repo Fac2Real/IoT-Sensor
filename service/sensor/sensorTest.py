@@ -16,7 +16,7 @@ ser.write(b"ATCSM 1\r\n")
 time.sleep(1) # 연결 대기
 
 flag = 0
-max_cnt = 30  #30번번 # 몇 번 받아올건지
+max_cnt = 50  #30번번 # 몇 번 받아올건지
 # query = "INSERT INTO ua10_table (temperature, humidity) VALUES (%s, %s)"
 
 publisher = AwsMQTT()
@@ -56,6 +56,8 @@ while(1):
 				stm, tmp, hmd = line.split(",")
 				payload = json.dumps({
 					"id": "UA10H-CHS-24060894",
+					"equip_id": "20250507165750-827",
+					"zone_id": "20250507165750-827",
 					"type": "온습도",
 					"temperature": float(tmp),
 					"humidity": float(hmd)

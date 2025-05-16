@@ -15,6 +15,7 @@ conn = AwsMQTT()
 # 스레드에서 실행될 시뮬레이션 함수
 def run_simulator(simulator, count, interval):
     for _ in range(count):
+        print(count)
         data = simulator.start_publishing()
         print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
         time.sleep(interval)
@@ -31,10 +32,9 @@ def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zo
     )
 
     for simulator in simulators:
-        for _ in range(count):
-            data = simulator.start_publishing()
-            print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
-            time.sleep(interval)
+        data = simulator.start_publishing()
+        print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
+        time.sleep(interval)
 # 시뮬레이션 함수
 def run_simulation_from_json(json_file_path):
     # JSON 파일 읽기
@@ -66,7 +66,7 @@ def run_simulation_from_json(json_file_path):
             zone_id=zone_id,
             equip_id=equip_id,
             interval=interval,
-            msg_count=count
+            msg_count=1
         )
 
         # 데이터 생성 및 출력
