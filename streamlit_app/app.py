@@ -44,8 +44,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             count INTEGER,
             interval REAL,
-            manufacture_id TEXT,
-            space_id TEXT,
+            equip_id TEXT,
+            zone_id TEXT,
             simulator TEXT,
             sensor_num INTEGER
         )
@@ -60,9 +60,9 @@ def save_to_db(data):
     cursor.execute("DELETE FROM devices")  # Clear existing data
     for device in data["devices"]:
         cursor.execute("""
-            INSERT INTO devices (count, interval, manufacture_id, space_id, simulator, sensor_num)
+            INSERT INTO devices (count, interval, equip_id, zone_id, simulator, sensor_num)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, (device["count"], device["interval"], device["manufacture_id"], device["space_id"], device["simulator"], device["sensor_num"]))
+        """, (device["count"], device["interval"], device["equip_id"], device["zone_id"], device["simulator"], device["sensor_num"]))
     conn.commit()
     conn.close()
 
@@ -70,18 +70,18 @@ def save_to_db(data):
 def load_from_db():
     conn = sqlite3.connect(DB_FILE_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT count, interval, manufacture_id, space_id, simulator, sensor_num FROM devices")
+    cursor.execute("SELECT count, interval, equip_id, zone_id, simulator, sensor_num FROM devices")
     rows = cursor.fetchall()
     conn.close()
-    return {"devices": [dict(zip(["count", "interval", "manufacture_id", "space_id", "simulator", "sensor_num"], row)) for row in rows]}
+    return {"devices": [dict(zip(["count", "interval", "equip_id", "zone_id", "simulator", "sensor_num"], row)) for row in rows]}
 
 # Function to run simulation with stop functionality
-def run_simulation_with_stop(simulator_type, count, interval, sensor_num, space_id, manufacture_id, stop_event):
+def run_simulation_with_stop(simulator_type, count, interval, sensor_num, zone_id, equip_id, stop_event):
     for _ in range(count):
         if stop_event.is_set():  # Stop 이벤트가 설정되었는지 확인
             print(f"Stopping simulation for {simulator_type}")
             break
-        run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, space_id, manufacture_id)
+        run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zone_id, equip_id)
         time.sleep(interval)  # 시뮬레이션 간격
 
 # Streamlit app
@@ -110,8 +110,8 @@ def main():
                 st.subheader(f"Device {i + 1} Details")
                 device["count"] = st.number_input(f"Count (Device {i + 1})", value=device["count"], key=f"count_{i}")
                 device["interval"] = st.number_input(f"Interval (Device {i + 1})", value=device["interval"], key=f"interval_{i}")
-                device["manufacture_id"] = st.text_input(f"Manufacture ID (Device {i + 1})", value=device["manufacture_id"], key=f"manufacture_id_{i}")
-                device["space_id"] = st.text_input(f"Space ID (Device {i + 1})", value=device["space_id"], key=f"space_id_{i}")
+                device["equip_id"] = st.text_input(f"Manufacture ID (Device {i + 1})", value=device["equip_id"], key=f"equip_id_{i}")
+                device["zone_id"] = st.text_input(f"Space ID (Device {i + 1})", value=device["zone_id"], key=f"zone_id_{i}")
                 device["simulator"] = st.text_input(f"Simulator (Device {i + 1})", value=device["simulator"], key=f"simulator_{i}")
                 device["sensor_num"] = st.number_input(f"Sensor Num (Device {i + 1})", value=device["sensor_num"], key=f"sensor_num_{i}")
 
@@ -125,8 +125,8 @@ def main():
                             device["count"],
                             device["interval"],
                             device["sensor_num"],
-                            device["space_id"],
-                            device["manufacture_id"],
+                            device["zone_id"],
+                            device["equip_id"],
                             stop_events[i]
                         ))
                         simulation_threads[i] = thread
@@ -157,8 +157,8 @@ def main():
         st.session_state.data["devices"].append({
             "count": 1,
             "interval": 1.0,
-            "manufacture_id": "NEW_ID",
-            "space_id": "NEW_SPACE",
+            "equip_id": "NEW_ID",
+            "zone_id": "NEW_SPACE",
             "simulator": "temp",
             "sensor_num": 1
         })
