@@ -1,7 +1,14 @@
 from .SimulatorInterface2 import SimulatorInterface2
 import random
+from service.simulatelogic.ContinuousSimulatorMixin import ContinuousSimulatorMixin
 
-class HumiditySimulator(SimulatorInterface2):
+class HumiditySimulator(ContinuousSimulatorMixin,SimulatorInterface2):
+    # 타입별 시뮬레이터 세팅
+    SENSOR_TYPE  = "humid"
+    MU, SIGMA    = 55, 15
+    LOWER, UPPER = 0, 100
+    OUTLIER_P    = 0.1
+
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         #########################################
         # 시뮬레이터에서 공통적으로 사용하는 속성
@@ -39,7 +46,7 @@ class HumiditySimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(random.uniform(20.0 + self.idx, 80.0 + self.idx), 2)
+            "val": self._generate_continuous_val()
         }
         
     ################################################
