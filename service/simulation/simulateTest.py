@@ -76,8 +76,14 @@ def run_simulation_from_json(json_file_path):
             #     # print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
             #     time.sleep(interval)
             thread = threading.Thread(target=run_simulator, args=(simulator, count, interval))
-            threads.append(thread)
             thread.start()
+            threads.append(thread)
+
+        # 모든 스레드가 종료될 때까지 대기
+        for thread in threads:
+            thread.join()
+
+        print("All simulations completed.")
 
 if __name__ == "__main__":
     # JSON 파일 경로

@@ -1,8 +1,14 @@
 from .SimulatorInterface2 import SimulatorInterface2
-from simulate_type.simulate_list import generate_current_data
-from scipy.stats import truncnorm
+from service.simulatelogic.ContinuousSimulatorMixin import ContinuousSimulatorMixin
 
-class CurrentSimulator(SimulatorInterface2):
+class CurrentSimulator(ContinuousSimulatorMixin,SimulatorInterface2):
+    # 타입별 시뮬레이터 세팅
+    SENSOR_TYPE  = "current" # 센서 타입
+    # MU, SIGMA          = 62.51, 33.76       
+    MU, SIGMA = 5, 30     # 평균치 , 표준 편차
+    LOWER, UPPER       = 1,50      # 측정 범위
+    OUTLIER_P          = 0.10        # 10 % 확률로 경보 값 생성
+
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         # 시뮬레이터에서 공통적으로 사용하는 속성
         super().__init__(
@@ -20,12 +26,12 @@ class CurrentSimulator(SimulatorInterface2):
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
         self.target_current = None  # 초기값 설정(shadow 용)   
-        self.mu = 62.51
-        self.sigma = 33.76
-        lower = 0
-        upper = self.mu + 3 * self.sigma
-        self.a = (lower - self.mu) / self.sigma
-        self.b = (upper - self.mu) / self.sigma
+        # self.mu = 62.51
+        # self.sigma = 33.76
+        # lower = 0
+        # upper = self.mu + 3 * self.sigma
+        # self.a = (lower - self.mu) / self.sigma
+        # self.b = (upper - self.mu) / self.sigma
         
         
     # 데이터 생성 로직 정의 
@@ -36,7 +42,8 @@ class CurrentSimulator(SimulatorInterface2):
             "sensorId": self.sensor_id,
             "sensorType": self.type,
             # "val": round(random.uniform(0.1 + self.idx, 10.0 + self.idx), 2)
-            "val": round(truncnorm.rvs(self.a, self.b, loc=self.mu, scale=self.sigma), 2) # 0: 7, 1: 7이상, 2: 30 이상 최소값은 0 
+            "val": self._generate_continuous_val() 
+            # 0: 7, 1: 7이상, 2: 30 이상 최소값은 0 
         }
     
     ################################################

@@ -1,28 +1,12 @@
 {
     "devices": [
         {
-            "count": 1,
-            "interval": 10.0,
-            "equip_id": "SBID-124",
-            "zone_id": "PID-711",
-            "simulator": "temp",
-            "sensor_num": 2
-        },
-        {
-            "count": 1,
-            "interval": 10.0,
-            "equip_id": "SBID-125",
-            "zone_id": "PID-790",
-            "simulator": "humidity",
-            "sensor_num": 3
-        },
-        {
-            "count": 1,
-            "interval": 10.0,
-            "equip_id": "SBID-126",
-            "zone_id": "PID-791",
-            "simulator": "vibration",
-            "sensor_num": 4
+            "count": 20,
+            "interval": 0.5,
+            "equip_id": "20250507165750-827",
+            "zone_id": "20250507165750-827",
+            "simulator": "current",
+            "sensor_num": 1
         }
     ]
 }
