@@ -137,3 +137,7 @@ class SimulatorInterface2(ABC):
         a, b = (lower - mu) / sigma, (upper - mu) / sigma
         value = truncnorm.rvs(a, b, loc=mu, scale=sigma)
         return round(value, 2)
+
+    def _build_topic(self, zone_id, equip_id, sensor_id, sensor_type):
+        prefix = "zone" if zone_id == equip_id else "equip"
+        return f"sensor/{prefix}/{zone_id}/{equip_id}/{sensor_id}/{sensor_type}"

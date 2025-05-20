@@ -35,7 +35,8 @@ class TempSimulator(ContinuousSimulatorMixin, SimulatorInterface2):
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         
         # 센서 데이터 publish용 토픽
-        self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
+        # self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
+        self.topic_name = self._build_topic(zone_id, equip_id,self.sensor_id, self.type)
 
         self.target_temperature = None # 초기값 설정(shadow 용)
         

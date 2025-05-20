@@ -5,7 +5,7 @@
             "interval": 0.5,
             "equip_id": "20250507165750-827",
             "zone_id": "20250507165750-827",
-            "simulator": "current",
+            "simulator": "temp",
             "sensor_num": 1
         }
     ]
