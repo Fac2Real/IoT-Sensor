@@ -1,9 +1,14 @@
 from .SimulatorInterface2 import SimulatorInterface2
 import random
-from scipy.stats import truncnorm
+from service.simulatelogic.ContinuousSimulatorMixin import ContinuousSimulatorMixin
 
+class TempSimulator(ContinuousSimulatorMixin, SimulatorInterface2):
+    # 정규분포 상속로직에 집어넣을 숫자들
+    SENSOR_TYPE  = "temp" # 센서 타입
+    MU, SIGMA    = 25, 10 # 평균, 표준편차
+    LOWER, UPPER = -35, 50 # 최소, 최대값
+    OUTLIER_P    = 0.05 # 이상치 확률(기본 5 %)
 
-class TempSimulator(SimulatorInterface2):
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         #########################################
         # 시뮬레이터에서 공통적으로 사용하는 속성
@@ -21,7 +26,7 @@ class TempSimulator(SimulatorInterface2):
         # 시뮬레이터 마다 개별적으로 사용하는 속성(토픽, 수집 데이터 초기값) 
         #########################################
 
-        self.sensor_id = f"UA10T-TEM-2406089{idx}" # 센서 ID
+        self.sensor_id = f"UA10T-TEM-3406089{idx}" # 센서 ID
         self.type = "temp" # 센서 타입
         # shadow 등록용 토픽
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
@@ -30,20 +35,10 @@ class TempSimulator(SimulatorInterface2):
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         
         # 센서 데이터 publish용 토픽
-        self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
+        # self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
+        self.topic_name = self._build_topic(zone_id, equip_id,self.sensor_id, self.type)
 
         self.target_temperature = None # 초기값 설정(shadow 용)
-        
-        self.mu = 25  # 평균 온도 (정상 범위: 18~21℃)
-        self.sigma = 10  # 표준편차 (온도의 변동폭)
-        
-        # 절단 범위 설정 (최소값 -35℃, 최대값 50℃로 설정)
-        self.lower = -35
-        self.upper = 50
-        
-        # 정규분포 범위의 a, b 값 계산
-        self.a = (self.lower - self.mu) / self.sigma
-        self.b = (self.upper - self.mu) / self.sigma
         
     ################################################z
     # 데이터 생성 로직을 정의 (시뮬레이터 마다 다르게 구현)
@@ -56,7 +51,7 @@ class TempSimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(truncnorm.rvs(self.a, self.b, loc=self.mu, scale=self.sigma), 2)
+            "val": self._generate_continuous_val()
         }
         
     ################################################
@@ -67,11 +62,11 @@ class TempSimulator(SimulatorInterface2):
         Shadow의 desired 상태를 받아서 센서에 적용 
         예) {"target_humid": 25.0} 이런 명령을 받아 적용
         """
-        target_humid = desired_state.get("target_humid")
-        if target_humid is not None:
-            self.target_humid = target_humid
-            print(f"Desired state applied: {self.sensor_id} - Target humid: {self.target_humid}")
+        target_temperature = desired_state.get("target_Temperature")
+        if target_temperature is not None:
+            self.target_temperature = target_temperature
+            print(f"Desired state applied: {self.sensor_id} - Target Temperature: {self.target_temperature}")
         else:
-            print(f"No target humid provided for {self.sensor_id}.")
+            print(f"No target temp provided for {self.sensor_id}.")
     
     
