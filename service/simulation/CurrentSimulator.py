@@ -24,7 +24,7 @@ class CurrentSimulator(ContinuousSimulatorMixin,SimulatorInterface2):
         self.type = "current"  # 센서 타입
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
-        self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
+        self.topic_name = self._build_topic(zone_id, equip_id,self.sensor_id, self.type)
         self.target_current = None  # 초기값 설정(shadow 용)   
         # self.mu = 62.51
         # self.sigma = 33.76

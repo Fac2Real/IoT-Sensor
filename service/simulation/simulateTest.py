@@ -6,6 +6,7 @@ import json
 import threading
 from awscrt import mqtt
 from mqtt_util.publish import AwsMQTT
+from service.sensor.RealSensor import RealSensor
 # 각 시뮬레이션 인터페이스에서 해당 데이터들을 사용, 메인에선 사용 X
 # from simulate_type.simulate_list import generate_temp_data, generate_humidity_data, generate_humidity_temp_data, generate_wearable_data, generate_vibration_data, generate_current_data 
 from .factory import get_simulator
@@ -21,20 +22,40 @@ def run_simulator(simulator, count, interval):
         time.sleep(interval)
         
 def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zone_id, equip_id):
+    # real_sensor 면 RealSensor 로직을 쓰고, Thread 를 반환받습니다.
+    if simulator_type == "real_sensor":
+        real = RealSensor(
+            idx=sensor_num,
+            zone_id=zone_id,
+            equip_id=equip_id,
+            interval=interval,
+            msg_count=count,
+            conn=conn
+        )
+        t = real.start_publishing()
+        return [t] if t else []
+        # threads.append(t)
+
     simulators = get_simulator(
-        conn=AwsMQTT(),
+        conn=conn,
         simulator_type=simulator_type,
         idx=sensor_num,
         zone_id=zone_id,
         equip_id=equip_id,
         interval=interval,
-        msg_count=count
+        msg_count=1
     )
+    threads = []  # 스레드를 저장할 리스트
 
     for simulator in simulators:
-        data = simulator.start_publishing()
-        print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
-        time.sleep(interval)
+        # 스레드가 중복 실행되지 않도록 수정
+        thread = threading.Thread(target=run_simulator, args=(simulator, count, interval))
+        thread.start()
+        threads.append(thread)
+        # print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
+        # time.sleep(interval)
+    return threads
+        
 # 시뮬레이션 함수
 def run_simulation_from_json(json_file_path):
     # JSON 파일 읽기
@@ -58,6 +79,20 @@ def run_simulation_from_json(json_file_path):
 
         print(f"Starting simulation for {simulator_type} with {sensor_num} sensors...")
 
+        if simulator_type == "real_sensor":
+            # RealSensor 인스턴스를 생성해서 .start_publishing() 를 스레드로 띄움
+            real = RealSensor(
+                idx=sensor_num,
+                zone_id=zone_id,
+                equip_id=equip_id,
+                interval=interval,
+                msg_count=count,
+                conn=conn
+            )
+            t = real.start_publishing()  # 이제 스레드를 직접 반환받음
+            threads.append(t)
+            continue
+
         # 시뮬레이터 생성
         simulators = get_simulator(
             conn = conn,
@@ -79,9 +114,9 @@ def run_simulation_from_json(json_file_path):
             thread.start()
             threads.append(thread)
 
-        # 모든 스레드가 종료될 때까지 대기
-        for thread in threads:
-            thread.join()
+        # # 모든 스레드가 종료될 때까지 대기
+        # for thread in threads:
+        #     thread.join()
 
         print("All simulations completed.")
 

@@ -77,13 +77,22 @@ def load_from_db():
 
 # Function to run simulation with stop functionality
 def run_simulation_with_stop(simulator_type, count, interval, sensor_num, zone_id, equip_id, stop_event):
-    for _ in range(count):
-        if stop_event.is_set():  # Stop 이벤트가 설정되었는지 확인
-            print(f"Stopping simulation for {simulator_type}")
-            break
-        run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zone_id, equip_id)
-        time.sleep(interval)  # 시뮬레이션 간격
+    # for _ in range(count):
+    #     if stop_event.is_set():  # Stop 이벤트가 설정되었는지 확인
+    #         print(f"Stopping simulation for {simulator_type}")
+    #         break
+    #     run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zone_id, equip_id)
+    #     time.sleep(interval)  # 시뮬레이션 간격
+        
+    # ① 시뮬레이터(혹은 RealSensor) 실행 → 쓰레드 리스트 반환
+    threads = run_simulator_from_streamlit(
+                  simulator_type, count, interval,
+                  sensor_num, zone_id, equip_id)
 
+    # ② 반환된 쓰레드가 있으면 모두 종료될 때까지 기다렸다가 포트 해제
+    for th in threads or []:        # None 방어
+        if th is not None:
+            th.join()               # ← 여기서 blocking, ser.close() 까지 완료
 # Streamlit app
 def main():
     st.title("Simulation Configuration Manager")
@@ -150,6 +159,8 @@ def main():
                     st.rerun()
     else:
         st.write("No devices found. Please load data or add a new device.")
+
+
 
     # Add new device
     st.header("Add New Device")
