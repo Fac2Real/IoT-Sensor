@@ -1,16 +1,16 @@
 {
     "devices": [
         {
-            "count": 10,
-            "interval": 2,
+            "count": 5,
+            "interval": 5,
             "equip_id": "20250507171316-389",
             "zone_id": "20250507165750-827",
             "simulator": "real_sensor",
             "sensor_num": 1
         },
         {
-            "count": 10,
-            "interval": 2,
+            "count": 5,
+            "interval": 5,
             "equip_id": "20250507171316-389",
             "zone_id": "20250507165750-827",
             "simulator": "current",

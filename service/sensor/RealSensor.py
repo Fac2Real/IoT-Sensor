@@ -5,10 +5,11 @@ from service.simulation.SimulatorInterface2 import SimulatorInterface2
 from mqtt_util.publish import AwsMQTT
 
 class RealSensor(SimulatorInterface2):
-    def __init__(self, idx, zone_id, equip_id, interval, msg_count, conn=None):
+    def __init__(self, idx, zone_id, equip_id, interval, msg_count, conn=None, stop_event=None):
         super().__init__(idx, zone_id, equip_id, interval, msg_count, conn=conn)
         self._is_publishing = False  # 중복 실행 방지 플래그
-        
+        self.stop_event = stop_event if stop_event else threading.Event()
+
         # (1) 센서 고유 ID
         self.sensor_id = f"UA10H-REAL-24060999"
 
@@ -63,6 +64,11 @@ class RealSensor(SimulatorInterface2):
 
             # 3) msg_count 번만큼 읽어서 퍼블리시
             for _ in range(self.msg_count):
+                # stop_event 확인 - 중지 요청 있으면 루프 종료
+                if self.stop_event.is_set():
+                    print(f"[RealSensor] Stopping due to stop_event")
+                    break
+
                 line = ser.readline().decode().strip()
                 if not line.startswith("STREAM"):
                     continue

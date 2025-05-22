@@ -159,3 +159,7 @@ class SimulatorInterface2(ABC):
         })
         self.conn.publish(topic, payload, mqtt.QoS.AT_LEAST_ONCE)
         print(f"Published data to {topic}: {payload}, {threading.current_thread().name}")
+    def stop_publishing(self):
+        """시뮬레이터 중지"""
+        self.stop_event.set()
+        print(f"[{self.__class__.__name__}] Stopping publishing...")

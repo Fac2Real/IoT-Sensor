@@ -21,7 +21,7 @@ def run_simulator(simulator, count, interval):
         print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
         time.sleep(interval)
         
-def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zone_id, equip_id):
+def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zone_id, equip_id, stop_event=None):
     # real_sensor 면 RealSensor 로직을 쓰고, Thread 를 반환받습니다.
     if simulator_type == "real_sensor":
         real = RealSensor(
@@ -30,7 +30,8 @@ def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zo
             equip_id=equip_id,
             interval=interval,
             msg_count=count,
-            conn=conn
+            conn=conn,
+            stop_event=stop_event  # stop_event 전달
         )
         t = real.start_publishing()
         return [t] if t else []
@@ -45,16 +46,27 @@ def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zo
         interval=interval,
         msg_count=1
     )
-    threads = []  # 스레드를 저장할 리스트
 
+    threads = []
     for simulator in simulators:
-        # 스레드가 중복 실행되지 않도록 수정
-        thread = threading.Thread(target=run_simulator, args=(simulator, count, interval))
+        # 스레드로 실행하여 비동기 처리
+        thread = threading.Thread(target=run_simulator_with_stop, args=(
+            simulator, count, interval, stop_event
+        ))
         thread.start()
         threads.append(thread)
-        # print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
-        # time.sleep(interval)
+    
     return threads
+# 새로운 함수: stop_event가 설정된 상태에서 시뮬레이터 실행
+def run_simulator_with_stop(simulator, count, interval, stop_event=None):
+    for i in range(count):
+        if stop_event and stop_event.is_set():
+            print(f"[Simulator] Stopping due to stop_event")
+            break
+            
+        data = simulator.start_publishing()
+        print(f"[{time.strftime('%H:%M:%S')}] Publishing data: {json.dumps(data)}")
+        time.sleep(interval)  # 실제 interval 간격으로 실행
         
 # 시뮬레이션 함수
 def run_simulation_from_json(json_file_path):
@@ -111,9 +123,8 @@ def run_simulation_from_json(json_file_path):
             #     # print(json.dumps(data, indent=4))  # 데이터를 JSON 형식으로 출력
             #     time.sleep(interval)
             thread = threading.Thread(target=run_simulator, args=(simulator, count, interval))
-            thread.start()
             threads.append(thread)
-
+            thread.start()
         # # 모든 스레드가 종료될 때까지 대기
         # for thread in threads:
         #     thread.join()
