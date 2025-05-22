@@ -95,10 +95,13 @@ class SimulatorInterface2(ABC):
         
         try:
             for _ in range(self.msg_count):
-                if self.stop_event.is_set():
-                    break
-                self._publish_data()
-                time.sleep(self.interval)
+                try:
+                    if self.stop_event.is_set():
+                        break
+                    self._publish_data()
+                    time.sleep(self.interval)
+                except Exception as e:
+                    print(f"Error in publish loop: {e}")
         finally:
             self._update_shadow(status="OFF")
     ########################################################################################
@@ -134,3 +137,7 @@ class SimulatorInterface2(ABC):
         a, b = (lower - mu) / sigma, (upper - mu) / sigma
         value = truncnorm.rvs(a, b, loc=mu, scale=sigma)
         return round(value, 2)
+
+    def _build_topic(self, zone_id, equip_id, sensor_id, sensor_type):
+        prefix = "zone" if zone_id == equip_id else "equip"
+        return f"sensor/{prefix}/{zone_id}/{equip_id}/{sensor_id}/{sensor_type}"

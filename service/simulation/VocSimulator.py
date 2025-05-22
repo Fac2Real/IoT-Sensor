@@ -1,7 +1,13 @@
 from .SimulatorInterface2 import SimulatorInterface2
-import random
+from service.simulatelogic.ContinuousSimulatorMixin import ContinuousSimulatorMixin
 
-class VocSimulator(SimulatorInterface2):
+class VocSimulator(ContinuousSimulatorMixin, SimulatorInterface2):
+    # voc_simulator.py – 상단 상수 정의 부분
+    SENSOR_TYPE         = "voc"
+    MU, SIGMA           = 400, 250         # 중심을 안전 구간에 가깝게, σ를 줄임
+    LOWER, UPPER        = 0, 2000         # 실제 상한값을 넉넉히 확보
+    OUTLIER_P           = 0.05            # 5% 확률로 위험 구간을 넘기기 위한 이상치 발생
+
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         # 시뮬레이터에서 공통적으로 사용하는 속성
         super().__init__(
@@ -27,7 +33,7 @@ class VocSimulator(SimulatorInterface2):
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": round(random.uniform(5.0 + self.idx, 50.0 + self.idx), 2)
+            "val": self._generate_continuous_val()
         }
     
     ################################################
@@ -37,11 +43,11 @@ class VocSimulator(SimulatorInterface2):
     def _apply_desired_state(self, desired_state):
         """ 
         Shadow의 desired 상태를 받아서 센서에 적용 
-        예) {"target_Vibration": 25.0} 이런 명령을 받아 적용
+        예) {"target_Voc": 25.0} 이런 명령을 받아 적용
         """
-        target_current = desired_state.get("target_current")
-        if target_current is not None:
-            self.target_current = target_current
-            print(f"Desired state applied: {self.sensor_id} - Target Current: {self.target_current}")
+        target_voc = desired_state.get("target_voc")
+        if target_voc is not None:
+            self.target_voc = target_voc
+            print(f"Desired state applied: {self.sensor_id} - Target Voc: {self.target_voc}")
         else:
-            print(f"No target current provided for {self.sensor_id}.")
+            print(f"No target voc provided for {self.sensor_id}.")
