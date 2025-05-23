@@ -3,6 +3,7 @@ import threading, serial, time, json
 from awscrt import mqtt
 from service.simulation.SimulatorInterface2 import SimulatorInterface2
 from mqtt_util.publish import AwsMQTT
+import serial.tools.list_ports
 
 class RealSensor(SimulatorInterface2):
     def __init__(self, idx, zone_id, equip_id, interval, msg_count, conn=None, stop_event=None):
@@ -21,7 +22,7 @@ class RealSensor(SimulatorInterface2):
         self.topic_name_temp  = self._build_topic(self.zone_id, self.equip_id, self.sensor_id, "temp")
         self.topic_name_humid = self._build_topic(self.zone_id, self.equip_id, self.sensor_id, "humid")
         # 시리얼 포트 설정
-        self.serial_port = 'COM3'      # Windows COM 포트
+        self.serial_port = self._find_serial_port()      # Windows COM 포트
         self.baudrate    = 9600    # 바우드
 
     ######## 오버라이딩은 하되 내용은 필요없는 메서드 ########
@@ -50,6 +51,27 @@ class RealSensor(SimulatorInterface2):
         thread = threading.Thread(target=self._read_and_publish_loop, daemon=False)
         thread.start()
         return thread
+
+    def _find_serial_port(self):
+        """USB Serial Device 포트를 자동으로 찾습니다"""
+        
+        # 사용 가능한 모든 포트 가져오기
+        ports = list(serial.tools.list_ports.comports())
+        
+        # 포트 정보 출력 (디버깅용)
+        print(f"Available ports: {len(ports)}")
+        for port in ports:
+            print(f"- {port.device}: {port.description} (manufacturer: {port.manufacturer})")
+        
+        # "USB Serial Device"라는 설명이 있는 포트 찾기
+        for port in ports:
+            if "USB Serial Device" in port.description:
+                print(f"Found USB Serial Device at {port.device}")
+                return port.device
+        
+        # 찾지 못한 경우 기본값 'COM3' 반환
+        print("USB Serial Device not found. Falling back to COM3.")
+        return 'COM3'
 
     def _read_and_publish_loop(self):
         try:    
