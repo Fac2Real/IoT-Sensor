@@ -122,7 +122,7 @@ def main():
                 st.subheader(f"Device {i + 1} Details")
                 device["count"] = st.number_input(f"Count (Device {i + 1})", value=device["count"], key=f"count_{i}")
                 device["interval"] = st.number_input(f"Interval (Device {i + 1})", value=device["interval"], key=f"interval_{i}")
-                device["equip_id"] = st.text_input(f"Manufacture ID (Device {i + 1})", value=device["equip_id"], key=f"equip_id_{i}")
+                device["equip_id"] = st.text_input(f"Equip ID (Device {i + 1})", value=device["equip_id"], key=f"equip_id_{i}")
                 device["zone_id"] = st.text_input(f"Space ID (Device {i + 1})", value=device["zone_id"], key=f"zone_id_{i}")
                 # device["simulator"] = st.text_input(f"Simulator (Device {i + 1})", value=device["simulator"], key=f"simulator_{i}")
                 #드랍다운 선택 형식으로 시뮬레이터 적용
