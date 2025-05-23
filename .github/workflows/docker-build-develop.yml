@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
 
 jobs:
   test-and-deploy:
@@ -39,11 +40,22 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Set IMAGE_TAG based on branch
+        id: set-tag
+        run: |
+          if [[ "${{ github.base_ref }}" == "main" ]]; then
+            echo "tag=prod-latest" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.base_ref }}" == "develop" ]]; then
+            echo "tag=dev-latest" >> $GITHUB_OUTPUT
+          else
+            echo "tag=unknown" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build, tag, and push image to ECR
         env:
           ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
           ECR_REPOSITORY: streamlit-app
-          IMAGE_TAG: streamlit-latest
+          IMAGE_TAG: ${{ steps.set-tag.outputs.tag }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
