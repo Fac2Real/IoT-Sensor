@@ -59,6 +59,9 @@ def run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zo
     return threads
 # 새로운 함수: stop_event가 설정된 상태에서 시뮬레이터 실행
 def run_simulator_with_stop(simulator, count, interval, stop_event=None):
+    # 절대 시간 기준 시작점 설정
+    next_run_time = time.time()
+
     for i in range(count):
         if stop_event and stop_event.is_set():
             print(f"[Simulator] Stopping due to stop_event")
@@ -66,7 +69,26 @@ def run_simulator_with_stop(simulator, count, interval, stop_event=None):
             
         data = simulator.start_publishing()
         print(f"[{time.strftime('%H:%M:%S')}] Publishing data: {json.dumps(data)}")
-        time.sleep(interval)  # 실제 interval 간격으로 실행
+        # time.sleep(interval)  # 실제 interval 간격으로 실행
+
+                # 다음 실행 시간 계산
+        next_run_time += interval
+        
+        # 대기 시간 계산
+        wait_time = next_run_time - time.time()
+        
+        # 지연 발생 시 경고 출력
+        if wait_time < 0:
+            print(f"[Warning] Behind schedule by {-wait_time:.3f}s at iteration {i+1}/{count}")
+            continue  # 지연됐으면 기다리지 않고 다음 반복으로
+        
+        # 짧은 간격으로 나누어 stop_event 지속적 확인
+        end_time = time.time() + wait_time
+        while time.time() < end_time:
+            if stop_event and stop_event.is_set():
+                print(f"[Simulator] Stopping during wait time")
+                return  # 즉시 함수 종료
+            time.sleep(0.05)  # 50ms 간격으로 확인 (조정 가능)
         
 # 시뮬레이션 함수
 def run_simulation_from_json(json_file_path):

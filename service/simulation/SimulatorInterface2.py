@@ -96,14 +96,31 @@ class SimulatorInterface2(ABC):
         self._update_shadow(status="ON") # 초기 상태를 ON으로 설정
         
         try:
+            next_publish_time = time.time()  # 초기 시작 시간
+            
             for _ in range(self.msg_count):
-                try:
+                if self.stop_event.is_set():
+                    break
+                    
+                # 데이터 발행
+                self._publish_data()
+                
+                # 다음 발행 시간 계산
+                next_publish_time += self.interval
+                
+                # 다음 발행 시간까지 남은 시간 계산
+                wait_time = next_publish_time - time.time()
+                
+                # 지연이 발생했다면 기다리지 않고 즉시 다음 작업 진행
+                if wait_time <= 0:
+                    print(f"Warning: Publishing is behind schedule by {-wait_time:.3f} seconds")
+                    continue
+                    
+                # 매우 짧은 간격으로 stop_event 확인하면서 대기
+                while time.time() < next_publish_time:
                     if self.stop_event.is_set():
-                        break
-                    self._publish_data()
-                    time.sleep(self.interval)
-                except Exception as e:
-                    print(f"Error in publish loop: {e}")
+                        return  # 즉시 종료
+                    time.sleep(0.01)  # 매우 짧은 sleep (거의 폴링)
         finally:
             self._update_shadow(status="OFF")
     ########################################################################################
