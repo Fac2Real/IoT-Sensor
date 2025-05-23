@@ -135,7 +135,7 @@ def main():
                 )
                 # real_sensor가 선택된 경우 경고 메시지 표시
                 if device["simulator"] == "real_sensor":
-                    st.warning("⚠️ 'real_sensor'는 로컬 환경에서만 사용 가능하며, 센서를 USB 포트(COM3)에 연결해야 합니다.")
+                    st.warning("⚠️ 'real_sensor'는 로컬 환경에서만 사용 가능하며, 센서를 USB 포트에 연결해야 합니다.")
                 # 센서 갯수 입력    
                 device["sensor_num"] = st.number_input(f"Sensor Num (Device {i + 1})", value=device["sensor_num"], key=f"sensor_num_{i}")
 
