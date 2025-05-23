@@ -25,7 +25,7 @@ class VibrationSimulator(ContinuousSimulatorMixin ,SimulatorInterface2):
         self.type = "vibration" # Sensor type
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
-        self.topic_name = f"sensor/{zone_id}/{equip_id}/{self.sensor_id}/{self.type}"
+        self.topic_name = self._build_topic(zone_id, equip_id,self.sensor_id, self.type)
         self.target_vibration = None # Initial value for shadow)
         # self.mu = 3.5  # 평균 진동값
         # self.sigma = 2  # 표준편차 (진동의 변동폭)

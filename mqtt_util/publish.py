@@ -52,7 +52,7 @@ class AwsMQTT:
             topic = topic, 
             payload = payload, 
             qos = qos)
-        print(f"Published: {payload} to topic: {topic}")
+        # print(f"Published: {payload} to topic: {topic}")
 
     def subscribe(self, topic, qos, callback):
         print(f"topic Subscribe: {topic} ")

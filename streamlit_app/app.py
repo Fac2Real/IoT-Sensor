@@ -77,13 +77,36 @@ def load_from_db():
 
 # Function to run simulation with stop functionality
 def run_simulation_with_stop(simulator_type, count, interval, sensor_num, zone_id, equip_id, stop_event):
-    for _ in range(count):
-        if stop_event.is_set():  # Stop 이벤트가 설정되었는지 확인
-            print(f"Stopping simulation for {simulator_type}")
-            break
-        run_simulator_from_streamlit(simulator_type, count, interval, sensor_num, zone_id, equip_id)
-        time.sleep(interval)  # 시뮬레이션 간격
-
+    # RealSensor와 가상 시뮬레이터를 구분하여 처리
+    if simulator_type == "real_sensor":
+        # RealSensor 모드: 쓰레드를 실행하고 포트 해제를 위해 join() 사용
+        threads = run_simulator_from_streamlit(
+            simulator_type, count, interval,
+            sensor_num, zone_id, equip_id,
+            stop_event  # stop_event 전달 중요!
+        )
+        
+        # join() 호출 제거 - 쓰레드가 백그라운드에서 실행되도록 함
+        print(f"RealSensor threads started in background. Count: {len(threads or [])}")
+        
+        # 선택사항: 쓰레드 정리를 위한 참조 저장
+        # 현재의 코드에서는 이미 simulation_threads에 참조가 저장되므로 추가 작업 필요 없음
+    else:
+        # 가상 시뮬레이터 모드: 기존에 잘 작동하던 방식 사용
+        for _ in range(count):
+            if stop_event.is_set():  # Stop 이벤트가 설정되었는지 확인
+                print(f"Stopping simulation for {simulator_type}")
+                break
+                
+            # 시뮬레이터 한 번 실행
+            run_simulator_from_streamlit(
+                simulator_type, 1, interval,  # count=1로 한 번만 실행
+                sensor_num, zone_id, equip_id,
+                stop_event
+            )
+            
+            time.sleep(interval)  # 시뮬레이션 간격
+            
 # Streamlit app
 def main():
     st.title("Simulation Configuration Manager")
@@ -151,6 +174,8 @@ def main():
     else:
         st.write("No devices found. Please load data or add a new device.")
 
+
+
     # Add new device
     st.header("Add New Device")
     if st.button("Add Device"):
@@ -172,6 +197,7 @@ def main():
     if st.sidebar.button("Save to SQLite"):
         save_to_db(st.session_state.data)
         st.success("Saved data to SQLite.")
+
 
 if __name__ == "__main__":
     init_db()

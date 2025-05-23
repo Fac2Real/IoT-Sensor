@@ -59,7 +59,7 @@ class SimulatorInterface2(ABC):
         )
         print(f"Published data to {self.topic_name}: {payload}")
         
-    def __subscribe_to_shadow_desired(self):
+    def _subscribe_to_shadow_desired(self):
         """ Shadow의 desired를 구독 (제어 메세지 수신용) """
         # MQTT 연결 객체를 통해 subscribe 호출
         self.conn.subscribe(
@@ -108,9 +108,13 @@ class SimulatorInterface2(ABC):
     # 시뮬레이션 객체에서 공통으로 사용할 스레드 관련 메서드 start_publishing, wait_until_done, stop
     ########################################################################################
     def start_publishing(self):
+        if hasattr(self, '_read_and_publish_loop'):
+            print("[SimulatorInterface2] Skip publishing because child overrides it.")
+            return  # 자식이 RealSensor라면 무시
+        
         """ 센서 데이터 publish 작업을 스레드에서 시작 """
         # Shadow의 desired 상태 구독 - callback으로 __apply_desired_state 메서드 사용
-        self.__subscribe_to_shadow_desired()
+        self._subscribe_to_shadow_desired()
         
         # publish 시작
         self.thread = threading.Thread(target=self._publish_loop)
@@ -141,3 +145,21 @@ class SimulatorInterface2(ABC):
     def _build_topic(self, zone_id, equip_id, sensor_id, sensor_type):
         prefix = "zone" if zone_id == equip_id else "equip"
         return f"sensor/{prefix}/{zone_id}/{equip_id}/{sensor_id}/{sensor_type}"
+
+    def publish_value(self, sensor_type: str, value: float):
+        """주어진 sensor_type, value 를 payload 로 묶어
+           prefix(zone/equip) 로 토픽을 만들고 publish."""
+        topic = self._build_topic(self.zone_id, self.equip_id, self.sensor_id, sensor_type)
+        payload = json.dumps({
+            "zoneId":     self.zone_id,
+            "equipId":    self.equip_id,
+            "sensorId":   self.sensor_id,
+            "sensorType": sensor_type,
+            "val":        value
+        })
+        self.conn.publish(topic, payload, mqtt.QoS.AT_LEAST_ONCE)
+        print(f"Published data to {topic}: {payload}, {threading.current_thread().name}")
+    def stop_publishing(self):
+        """시뮬레이터 중지"""
+        self.stop_event.set()
+        print(f"[{self.__class__.__name__}] Stopping publishing...")

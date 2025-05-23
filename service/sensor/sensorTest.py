@@ -16,7 +16,7 @@ ser.write(b"ATCSM 1\r\n")
 time.sleep(1) # 연결 대기
 
 flag = 0
-max_cnt = 50  #30번번 # 몇 번 받아올건지
+max_cnt = 15  #30번번 # 몇 번 받아올건지
 # query = "INSERT INTO ua10_table (temperature, humidity) VALUES (%s, %s)"
 
 publisher = AwsMQTT()
