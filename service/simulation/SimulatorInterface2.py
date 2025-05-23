@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from awscrt import mqtt
 import json
 import threading
+from threading import Event
 from mqtt_util.publish import AwsMQTT
 import time
 from scipy.stats import truncnorm
 
 class SimulatorInterface2(ABC):
-    def __init__(self, idx: int, zone_id: str, equip_id: str, interval: int, msg_count: int, conn:AwsMQTT=None): # 센서 idx를 받기
+    def __init__(self, idx: int, zone_id: str, equip_id: str, interval: int, msg_count: int, conn:AwsMQTT=None, stop_event: Event = None): # 센서 idx를 받기
         self.idx = idx # 센서 번호
         self.zone_id = zone_id # 공간 ID
         self.equip_id = equip_id # 설비 ID
@@ -15,7 +16,8 @@ class SimulatorInterface2(ABC):
         self.msg_count = msg_count # publish 횟수
         self.conn = conn # 시뮬레이터 별로 생성된 MQTT 연결 객체를 singleton으로 사용하기 위함    
         self.thead = None # 스레드 객체
-        self.stop_event = threading.Event() # 스레드 종료 이벤트 객체
+        # stop_event가 None이면 새 Event 객체 생성
+        self.stop_event = stop_event if stop_event is not None else Event()
     ##########################################################
     # @abstractmethod 시뮬레이터 마다 로직이 달라 구현해야되는 메서드
     ##########################################################
@@ -160,6 +162,37 @@ class SimulatorInterface2(ABC):
         self.conn.publish(topic, payload, mqtt.QoS.AT_LEAST_ONCE)
         print(f"Published data to {topic}: {payload}, {threading.current_thread().name}")
     def stop_publishing(self):
-        """시뮬레이터 중지"""
-        self.stop_event.set()
-        print(f"[{self.__class__.__name__}] Stopping publishing...")
+        # """시뮬레이터 중지"""
+        # self.stop_event.set()
+        # print(f"[{self.__class__.__name__}] Stopping publishing...")
+        """시뮬레이터 중지 및 리소스 정리"""
+        if hasattr(self, 'stop_event') and self.stop_event:
+            print(f"[{self.__class__.__name__}] Setting stop event...")
+            self.stop_event.set()  # 중지 이벤트 설정
+            
+            # 스레드가 있고 살아있다면 종료 대기 (최대 3초)
+            if hasattr(self, 'thread') and self.thread and self.thread.is_alive():
+                print(f"[{self.__class__.__name__}] Waiting for thread to terminate...")
+                self.thread.join(timeout=3)
+                
+                # 여전히 살아있다면 경고
+                if self.thread.is_alive():
+                    print(f"Warning: Thread for {self.__class__.__name__} could not be terminated normally")
+            
+            # shadow 상태 업데이트 - 센서 OFF 상태 알림
+            try:
+                self._update_shadow(status="OFF")
+                print(f"[{self.__class__.__name__}] Shadow updated to OFF state")
+            except Exception as e:
+                print(f"[{self.__class__.__name__}] Error updating shadow: {e}")
+            
+            # 추가 리소스 정리
+            self._cleanup_resources()
+            
+            print(f"[{self.__class__.__name__}] Successfully stopped")
+        else:
+            print(f"[{self.__class__.__name__}] No stop_event available")
+
+    def _cleanup_resources(self):
+        """자식 클래스에서 오버라이드하여 추가 리소스 정리 가능"""
+        pass
