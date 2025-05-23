@@ -105,30 +105,89 @@ def main():
         st.session_state.data = load_json()
 
     # Sidebar options to load data
-    if st.sidebar.button("Load from JSON"):
+    st.sidebar.header("Load Options")
+    if st.sidebar.button("Load from JSON - JSON 파일에서 센서 데이터 불러오기"):
         st.session_state.data = load_json()
         st.success("Loaded data from JSON.")
         st.rerun()
-    elif st.sidebar.button("Load from SQLite"):
+    elif st.sidebar.button("Load from SQLite - DB에서 센서 데이터 불러오기"):
         st.session_state.data = load_from_db()
         st.success("Loaded data from SQLite.")
         st.rerun()
+        
+    # 모든 시뮬레이션 동시 실행/중지 섹션 추가
 
+    st.header("Batch Operations")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("Run All Simulators - 모든 센서 동시 실행", use_container_width=True):
+            if not st.session_state.data.get("devices"):
+                st.warning("No devices found. Please add devices first.")
+            else:
+                # 모든 센서 동시에 시작
+                for i, device in enumerate(st.session_state.data["devices"]):
+                    if i not in simulation_threads or not simulation_threads[i].is_alive():
+                        stop_events[i] = threading.Event()
+                        thread = threading.Thread(target=run_simulation_with_stop, args=(
+                            device["simulator"],
+                            device["count"],
+                            device["interval"],
+                            device["sensor_num"],
+                            device["zone_id"],
+                            device["equip_id"],
+                            stop_events[i]
+                        ))
+                        simulation_threads[i] = thread
+                        thread.start()
+                st.success(f"Started simulations for all {len(st.session_state.data['devices'])} devices.")
+
+
+    # 시뮬레이션 상태 대시보드 (시각적으로 개선)
+    st.subheader("💻 Simulation Status Dashboard")
+
+    # 실행 중인 디바이스 수 표시
+    active_count = sum(1 for t in simulation_threads.values() if t and t.is_alive())
+    total_count = len(st.session_state.data["devices"]) if "devices" in st.session_state.data else 0
+
+    # 전체 진행 상태 표시
+    st.markdown(f"**활성 시뮬레이션**: {active_count}/{total_count} 디바이스 실행 중")
+
+    # 각 디바이스 상태를 시각적 요소로 표시
+    if "devices" in st.session_state.data and st.session_state.data["devices"]:
+        # 디바이스 상태 그리드 레이아웃 (3열)
+        cols = st.columns(3)
+        for i, device in enumerate(st.session_state.data["devices"]):
+            with cols[i % 3]:
+                is_running = i in simulation_threads and simulation_threads[i].is_alive()
+                
+                # 디바이스 타입에 따라 아이콘 선택
+                simulator_type = device["simulator"]
+                icon = "🌡️" if simulator_type == "temp" else "💧" if simulator_type == "humidity" else "📊"
+                
+                # 상태에 따른 색상 및 프로그레스 바
+                if is_running:
+                    st.markdown(f"**{icon} Device {i+1}**: 🟢 Running")
+                    st.progress(100)  # 실행 중인 경우 100% 표시
+                else:
+                    st.markdown(f"**{icon} Device {i+1}**: ⚪ Idle")
+                    st.progress(0)    # 유휴 상태인 경우 0% 표시
     # Display devices in blocks
     st.header("Devices")
     if "devices" in st.session_state.data and st.session_state.data["devices"]:
         for i, device in enumerate(st.session_state.data["devices"]):
             with st.expander(f"Device {i + 1}"):
                 st.subheader(f"Device {i + 1} Details")
-                device["count"] = st.number_input(f"Count (Device {i + 1})", value=device["count"], key=f"count_{i}")
-                device["interval"] = st.number_input(f"Interval (Device {i + 1})", value=device["interval"], key=f"interval_{i}")
-                device["equip_id"] = st.text_input(f"Equip ID (Device {i + 1})", value=device["equip_id"], key=f"equip_id_{i}")
-                device["zone_id"] = st.text_input(f"Space ID (Device {i + 1})", value=device["zone_id"], key=f"zone_id_{i}")
+                device["count"] = st.number_input(f"Count (Device {i + 1}) - 보낼 센서의 데이터 수", value=device["count"], key=f"count_{i}")
+                device["interval"] = st.number_input(f"Interval (Device {i + 1}) - 데이터 전송간 시간 간격", value=device["interval"], key=f"interval_{i}")
+                device["equip_id"] = st.text_input(f"Equip ID (Device {i + 1}) - Equip 설비 정보", value=device["equip_id"], key=f"equip_id_{i}")
+                device["zone_id"] = st.text_input(f"Space ID (Device {i + 1}) - Zone 공간 정보", value=device["zone_id"], key=f"zone_id_{i}")
+                st.caption("※ 설비 정보 == 공간 정보시 환경 센서로 인식합니다. (다를 시 설비 센서)")                
                 # device["simulator"] = st.text_input(f"Simulator (Device {i + 1})", value=device["simulator"], key=f"simulator_{i}")
                 #드랍다운 선택 형식으로 시뮬레이터 적용
                 simulator_options = ["temp", "humidity", "vibration", "current", "dust", "voc", "real_sensor"]
                 device["simulator"] = st.selectbox(
-                    f"Simulator (Device {i + 1})",
+                    f"Simulator (Device {i + 1}) - 시뮬레이터 타입 선택",
                     options=simulator_options,
                     index=simulator_options.index(device["simulator"]) if device["simulator"] in simulator_options else 0,
                     key=f"simulator_{i}"
@@ -137,7 +196,7 @@ def main():
                 if device["simulator"] == "real_sensor":
                     st.warning("⚠️ 'real_sensor'는 로컬 환경에서만 사용 가능하며, 센서를 USB 포트에 연결해야 합니다.")
                 # 센서 갯수 입력    
-                device["sensor_num"] = st.number_input(f"Sensor Num (Device {i + 1})", value=device["sensor_num"], key=f"sensor_num_{i}")
+                device["sensor_num"] = st.number_input(f"Sensor Num (Device {i + 1}) - 생성할 센서의 수", value=device["sensor_num"], key=f"sensor_num_{i}")
 
                 # Run Simulation Button
                 if st.button(f"Run Simulation for Device {i + 1}", key=f"run_{i}"):
@@ -179,7 +238,7 @@ def main():
 
     # Add new device
     st.header("Add New Device")
-    if st.button("Add Device"):
+    if st.button("Add Device - 새로운 디바이스 추가"):
         st.session_state.data["devices"].append({
             "count": 1,
             "interval": 1.0,
@@ -192,12 +251,18 @@ def main():
 
     # Save options
     st.sidebar.header("Save Options")
-    if st.sidebar.button("Save to JSON"):
+    if st.sidebar.button("Save to JSON - 현재 설정해둔 센서 데이터를 JSON에 저장"):
         save_json(st.session_state.data)
         st.success("Saved data to JSON.")
-    if st.sidebar.button("Save to SQLite"):
+    if st.sidebar.button("Save to SQLite - 현재 설정해둔 센서 데이터를 DB에 저장"):
         save_to_db(st.session_state.data)
         st.success("Saved data to SQLite.")
+    # 자동 새로고침 구현 (맨 마지막에 추가)
+    if simulation_threads and any(thread.is_alive() for thread in simulation_threads.values()):
+        # 활성 시뮬레이션이 있으면 주기적으로 새로고침
+        st.empty()  # 빈 요소 추가
+        time.sleep(3)  # 3초 대기
+        st.rerun()  # 페이지 전체 새로고침
 
 if __name__ == "__main__":
     init_db()
