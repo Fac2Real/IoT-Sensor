@@ -225,13 +225,13 @@ def main():
                         st.warning(f"Simulation for Device {i + 1} is already running.")
 
                 # Stop Simulation Button
-                if st.button(f"Stop Simulation for Device {i + 1}", key=f"stop_{i}"):
-                    if i in stop_events:
-                        stop_events[i].set()  # Stop 이벤트 설정
-                        st.write(f"Stopping simulation for Device {i + 1} with stop_event: {stop_events[i]}")  # 디버깅 출력
-                        st.success(f"Simulation for Device {i + 1} stopped.")
-                    else:
-                        st.warning(f"No simulation is running for Device {i + 1}.")
+                # if st.button(f"Stop Simulation for Device {i + 1}", key=f"stop_{i}"):
+                #     if i in stop_events:
+                #         stop_events[i].set()  # Stop 이벤트 설정
+                #         st.write(f"Stopping simulation for Device {i + 1} with stop_event: {stop_events[i]}")  # 디버깅 출력
+                #         st.success(f"Simulation for Device {i + 1} stopped.")
+                #     else:
+                #         st.warning(f"No simulation is running for Device {i + 1}.")
 
                 # Delete Device Button
                 if st.button(f"Delete Device {i + 1}", key=f"delete_{i}"):
