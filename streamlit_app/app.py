@@ -163,14 +163,20 @@ def main():
                 
                 # 디바이스 타입에 따라 아이콘 선택
                 simulator_type = device["simulator"]
-                icon = "🌡️" if simulator_type == "temp" else "💧" if simulator_type == "humidity" else "📊"
-                
+                icon = ("🌡️" if simulator_type == "temp" else 
+                        "💧" if simulator_type == "humidity" else 
+                        "📳" if simulator_type == "vibration" else 
+                        "⚡" if simulator_type == "current" else 
+                        "💨" if simulator_type == "dust" else 
+                        "🌫️" if simulator_type == "voc" else 
+                        "🔌" if simulator_type == "real_sensor" else 
+                        "📊")                
                 # 상태에 따른 색상 및 프로그레스 바
                 if is_running:
-                    st.markdown(f"**{icon} Device {i+1}**: 🟢 Running")
+                    st.markdown(f"**{icon} Device {i+1} ({simulator_type})**: 🟢 Running")
                     st.progress(100)  # 실행 중인 경우 100% 표시
                 else:
-                    st.markdown(f"**{icon} Device {i+1}**: ⚪ Idle")
+                    st.markdown(f"**{icon} Device {i+1} ({simulator_type})**: ⚪ Idle")
                     st.progress(0)    # 유휴 상태인 경우 0% 표시
     # Display devices in blocks
     st.header("Devices")
@@ -219,13 +225,13 @@ def main():
                         st.warning(f"Simulation for Device {i + 1} is already running.")
 
                 # Stop Simulation Button
-                if st.button(f"Stop Simulation for Device {i + 1}", key=f"stop_{i}"):
-                    if i in stop_events:
-                        stop_events[i].set()  # Stop 이벤트 설정
-                        st.write(f"Stopping simulation for Device {i + 1} with stop_event: {stop_events[i]}")  # 디버깅 출력
-                        st.success(f"Simulation for Device {i + 1} stopped.")
-                    else:
-                        st.warning(f"No simulation is running for Device {i + 1}.")
+                # if st.button(f"Stop Simulation for Device {i + 1}", key=f"stop_{i}"):
+                #     if i in stop_events:
+                #         stop_events[i].set()  # Stop 이벤트 설정
+                #         st.write(f"Stopping simulation for Device {i + 1} with stop_event: {stop_events[i]}")  # 디버깅 출력
+                #         st.success(f"Simulation for Device {i + 1} stopped.")
+                #     else:
+                #         st.warning(f"No simulation is running for Device {i + 1}.")
 
                 # Delete Device Button
                 if st.button(f"Delete Device {i + 1}", key=f"delete_{i}"):

@@ -2,7 +2,7 @@
     "devices": [
         {
             "count": 5,
-            "interval": 3,
+            "interval": 5,
             "equip_id": "20250507165750-827",
             "zone_id": "20250507165750-827",
             "simulator": "real_sensor",
@@ -10,11 +10,11 @@
         },
         {
             "count": 5,
-            "interval": 3,
+            "interval": 5,
             "equip_id": "20250507171316-389",
             "zone_id": "20250507165750-827",
             "simulator": "vibration",
             "sensor_num": 1
-        }        
+        }
     ]
 }
