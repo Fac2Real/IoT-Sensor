@@ -5,6 +5,8 @@ from service.simulation.CurrentSimulator import CurrentSimulator
 from service.simulation.DustSimulator import DustSimulator
 from service.simulation.ExampleSimulator import ExampleSimulator
 from service.simulation.VocSimulator import VocSimulator
+from service.simulation.PowerSimulator import PowerSimulator
+from service.simulation.PressureSimulator import PressureSimulator
 from mqtt_util.publish import AwsMQTT
 from typing import List
 # from .SimulatorInterface import SimulatorInterface
@@ -29,6 +31,10 @@ def get_simulator(simulator_type: str, idx: int, zone_id: str, equip_id: str, in
             simulator_entity_list.append(ExampleSimulator(i, zone_id, equip_id, interval, msg_count, conn))
         elif simulator_type == "voc":
             simulator_entity_list.append(VocSimulator(i, zone_id, equip_id, interval, msg_count, conn))
+        elif simulator_type == "power":
+            simulator_entity_list.append(PowerSimulator(i, zone_id, equip_id, interval, msg_count, conn))
+        elif simulator_type == "pressure":
+            simulator_entity_list.append(PressureSimulator(i, zone_id, equip_id, interval, msg_count, conn))
         else:
             raise ValueError(f"Unknown simulator type: {simulator_type}")
     return simulator_entity_list

@@ -166,7 +166,9 @@ def main():
                 icon = ("🌡️" if simulator_type == "temp" else 
                         "💧" if simulator_type == "humidity" else 
                         "📳" if simulator_type == "vibration" else 
+                        "⚡⚡" if simulator_type == "power" else 
                         "⚡" if simulator_type == "current" else 
+                        "⚙️" if simulator_type == "pressure" else 
                         "💨" if simulator_type == "dust" else 
                         "🌫️" if simulator_type == "voc" else 
                         "🔌" if simulator_type == "real_sensor" else 
@@ -191,7 +193,7 @@ def main():
                 st.caption("※ 설비 정보 == 공간 정보시 환경 센서로 인식합니다. (다를 시 설비 센서)")                
                 # device["simulator"] = st.text_input(f"Simulator (Device {i + 1})", value=device["simulator"], key=f"simulator_{i}")
                 #드랍다운 선택 형식으로 시뮬레이터 적용
-                simulator_options = ["temp", "humidity", "vibration", "current", "dust", "voc", "real_sensor"]
+                simulator_options = ["temp", "humidity", "vibration","power", "current", "pressure" , "dust", "voc", "real_sensor"]
                 device["simulator"] = st.selectbox(
                     f"Simulator (Device {i + 1}) - 시뮬레이터 타입 선택",
                     options=simulator_options,
