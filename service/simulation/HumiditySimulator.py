@@ -5,9 +5,15 @@ from service.simulatelogic.ContinuousSimulatorMixin import ContinuousSimulatorMi
 class HumiditySimulator(ContinuousSimulatorMixin,SimulatorInterface2):
     # 타입별 시뮬레이터 세팅
     SENSOR_TYPE  = "humid"
-    MU, SIGMA    = 55, 15
-    LOWER, UPPER = 0, 100
-    OUTLIER_P    = 0.1
+    # 환경센서용 정규분포 파라미터
+    ENV_MU, ENV_SIGMA    = 55, 15
+    # 설비센서용 정규분포 파라미터  
+    FAC_MU, FAC_SIGMA    = 50.02, 11.84
+
+    ENV_LOWER, ENV_UPPER = 0, 100
+    FAC_LOWER, FAC_UPPER = 10, 90
+
+    OUTLIER_P    = 0.05
 
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
         #########################################
@@ -27,6 +33,20 @@ class HumiditySimulator(ContinuousSimulatorMixin,SimulatorInterface2):
         #########################################
         self.sensor_id = f"UA10H-HUM-3406089{idx}" # 센서 ID
         self.type = "humid" # 센서 타입
+
+        # 환경센서 vs 설비센서 구분 및 파라미터 설정
+        self.is_environment_sensor = (zone_id == equip_id)
+        if self.is_environment_sensor:
+            self.MU = self.ENV_MU
+            self.SIGMA = self.ENV_SIGMA
+            self.LOWER = self.ENV_LOWER
+            self.UPPER = self.ENV_UPPER
+        else:
+            self.MU = self.FAC_MU
+            self.SIGMA = self.FAC_SIGMA
+            self.LOWER = self.FAC_LOWER
+            self.UPPER = self.FAC_UPPER
+    
         # shadow 등록용 토픽
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         # shadow 제어 명령 구독용 토픽
@@ -41,12 +61,16 @@ class HumiditySimulator(ContinuousSimulatorMixin,SimulatorInterface2):
     ################################################
     def _generate_data(self) -> dict:
         """ 데이터 생성 메서드 """
+        
+        # ContinuousSimulatorMixin의 메서드를 오버라이드하여 센서별 파라미터 적용
+        sensor_value = self._generate_continuous_val()
+
         return {
             "zoneId": self.zone_id,
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": self._generate_continuous_val()
+            "val": sensor_value
         }
         
     ################################################

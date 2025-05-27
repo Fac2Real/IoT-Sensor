@@ -4,7 +4,12 @@ from service.simulatelogic.ContinuousSimulatorMixin import ContinuousSimulatorMi
 class DustSimulator(ContinuousSimulatorMixin,SimulatorInterface2):
     # dust_simulator.py (Mixin 상수 부분만)
     SENSOR_TYPE         = "dust"     # ㎍/㎥
-    MU, SIGMA           = 50, 25     # 평균 50 ㎍/㎥, σ = 25
+    # MU, SIGMA           = 50, 25     # 평균 50 ㎍/㎥, σ = 25
+    # 환경센서용 정규분포 파라미터
+    ENV_MU, ENV_SIGMA    = 50, 25
+    # 설비센서용 정규분포 파라미터  
+    FAC_MU, FAC_SIGMA    = 50, 25
+    
     LOWER, UPPER        = 0, 300     # 0 ‒ 300 ㎍/㎥ 범위
     # SMALL_SIGMA_RATIO   = 0.10       # 정상 변동폭 = σ의 10 %(≈ ±2.5)
 
@@ -21,6 +26,16 @@ class DustSimulator(ContinuousSimulatorMixin,SimulatorInterface2):
         # 시뮬레이터 마다 개별적으로 사용하는 속성(토픽, 수집 데이터 초기값)
         self.sensor_id = f"UA10D-DST-2406089{idx}"  # 센서 ID
         self.type = "dust"  # 센서 타입
+
+        # 환경센서 vs 설비센서 구분 및 파라미터 설정
+        self.is_environment_sensor = (zone_id == equip_id)
+        if self.is_environment_sensor:
+            self.MU = self.ENV_MU
+            self.SIGMA = self.ENV_SIGMA
+        else:
+            self.MU = self.FAC_MU
+            self.SIGMA = self.FAC_SIGMA
+            
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         self.shadow_desired_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update/desired"
         self.topic_name = self._build_topic(zone_id, equip_id,self.sensor_id, self.type)
@@ -36,12 +51,16 @@ class DustSimulator(ContinuousSimulatorMixin,SimulatorInterface2):
 
     # 데이터 생성 로직 정의 
     def _generate_data(self) -> dict:
+        
+        # ContinuousSimulatorMixin의 메서드를 오버라이드하여 센서별 파라미터 적용
+        sensor_value = self._generate_continuous_val()
+                
         return {
             "zoneId": self.zone_id,
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": self._generate_continuous_val()
+            "val": sensor_value
         }
     
     ################################################

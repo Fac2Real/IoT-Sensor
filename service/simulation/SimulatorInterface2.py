@@ -53,13 +53,36 @@ class SimulatorInterface2(ABC):
     
     def _publish_data(self):
         """ 센서 데이터를 MQTT로 publish 하는 메서드 """
-        payload = json.dumps(self._generate_data())
-        self.conn.publish(
-            topic=self.topic_name,
-            payload=payload,
-            qos=mqtt.QoS.AT_LEAST_ONCE
-        )
-        print(f"Published data to {self.topic_name}: {payload}")
+        data = self._generate_data()
+        
+        # 리스트인 경우 (PowerSimulator처럼 여러 데이터 반환)
+        if isinstance(data, list):
+            for item in data:
+                # 각 데이터 항목에 sensorType에 따라 토픽 결정
+                sensor_type = item.get("sensorType", "unknown")
+                if sensor_type == "active_power":
+                    topic = getattr(self, 'active_topic', self.active_topic)
+                elif sensor_type == "reactive_power":
+                    topic = getattr(self, 'reactive_topic', self.reactive_topic)
+                else:
+                    topic = self.topic_name
+                
+                payload = json.dumps(item)
+                self.conn.publish(
+                    topic=topic,
+                    payload=payload,
+                    qos=mqtt.QoS.AT_LEAST_ONCE
+                )
+                print(f"Published data to {topic}: {payload}")
+        else:
+            # 단일 데이터인 경우 (기존 시뮬레이터들)
+            payload = json.dumps(data)
+            self.conn.publish(
+                topic=self.topic_name,
+                payload=payload,
+                qos=mqtt.QoS.AT_LEAST_ONCE
+            )
+            print(f"Published data to {self.topic_name}: {payload}")
         
     def _subscribe_to_shadow_desired(self):
         """ Shadow의 desired를 구독 (제어 메세지 수신용) """

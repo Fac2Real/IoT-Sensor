@@ -32,7 +32,7 @@ class ContinuousSimulatorMixin:
 
         # 2) 이상치
         if random.random() < self.OUTLIER_P:
-            val = random.gauss(self.MU, self.SIGMA)
+            val = random.uniform(self.UPPER * 0.8, self.UPPER)
 
         # 3) 범위 클램프 & 저장
         val = round(max(self.LOWER, min(self.UPPER, val)), 2)

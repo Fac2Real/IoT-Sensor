@@ -5,8 +5,16 @@ from service.simulatelogic.ContinuousSimulatorMixin import ContinuousSimulatorMi
 class TempSimulator(ContinuousSimulatorMixin, SimulatorInterface2):
     # 정규분포 상속로직에 집어넣을 숫자들
     SENSOR_TYPE  = "temp" # 센서 타입
-    MU, SIGMA    = 25, 10 # 평균, 표준편차
-    LOWER, UPPER = -35, 50 # 최소, 최대값
+
+    # 환경센서용 정규분포 파라미터
+    ENV_MU, ENV_SIGMA    = 25, 3   # 환경센서: 평균 25도, 표준편차 3 (안정적)
+    
+    # 설비센서용 정규분포 파라미터  
+    FAC_MU, FAC_SIGMA    = 71, 10  # 설비센서: 평균 45도, 표준편차 15 (변동성 큼)
+
+    ENV_LOWER, ENV_UPPER = -35, 50 # 최소, 최대값
+
+    FAC_LOWER, FAC_UPPER = 10, 150 # 최소, 최대값
     OUTLIER_P    = 0.05 # 이상치 확률(기본 5 %)
 
     def __init__(self, idx: int, zone_id:str, equip_id:str, interval:int = 5, msg_count:int = 10, conn=None):
@@ -28,6 +36,20 @@ class TempSimulator(ContinuousSimulatorMixin, SimulatorInterface2):
 
         self.sensor_id = f"UA10T-TEM-3406089{idx}" # 센서 ID
         self.type = "temp" # 센서 타입
+
+        # 환경센서 vs 설비센서 구분 및 파라미터 설정
+        self.is_environment_sensor = (zone_id == equip_id)
+        if self.is_environment_sensor:
+            self.MU = self.ENV_MU
+            self.SIGMA = self.ENV_SIGMA
+            self.LOWER = self.ENV_LOWER
+            self.UPPER = self.ENV_UPPER
+        else:
+            self.MU = self.FAC_MU
+            self.SIGMA = self.FAC_SIGMA
+            self.LOWER = self.FAC_LOWER
+            self.UPPER = self.FAC_UPPER
+        
         # shadow 등록용 토픽
         self.shadow_regist_topic_name = f"$aws/things/Sensor/shadow/name/{self.sensor_id}/update"
         
@@ -39,19 +61,22 @@ class TempSimulator(ContinuousSimulatorMixin, SimulatorInterface2):
         self.topic_name = self._build_topic(zone_id, equip_id,self.sensor_id, self.type)
 
         self.target_temperature = None # 초기값 설정(shadow 용)
-        
     ################################################z
     # 데이터 생성 로직을 정의 (시뮬레이터 마다 다르게 구현)
     # 예) 온도, 습도, 진동, 전류 등등
     ################################################
     def _generate_data(self) -> dict:
         """ 데이터 생성 메서드 """
+        
+        # ContinuousSimulatorMixin의 메서드를 오버라이드하여 센서별 파라미터 적용
+        sensor_value = self._generate_continuous_val()
+
         return {
             "zoneId": self.zone_id,
             "equipId": self.equip_id,
             "sensorId": self.sensor_id,
             "sensorType": self.type,
-            "val": self._generate_continuous_val()
+            "val": sensor_value
         }
         
     ################################################
