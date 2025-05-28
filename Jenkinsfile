@@ -46,7 +46,7 @@ pipeline {
                       detailsURL: env.BUILD_URL
 
         // Gradle 빌드 환경 변수 설정
-        withCredentials([ file(credentialsId: 'backend-env', variable: 'ENV_FILE') ]) {
+        withCredentials([ file(credentialsId: 'iot-env', variable: 'ENV_FILE') ]) {
         sh '''
 set -o allexport
 source "$ENV_FILE"
@@ -82,8 +82,8 @@ python3.11 -m pytest || echo "Tests not configured, skipping..."
     }
 
 
-    /* 2) develop 전용 ─ Docker 이미지 빌드 & ECR Push */
-    stage('Docker Build & Push (develop only)') {
+    /* 2) develop 전용 ─ Docker 이미지 빌드 & ECR Push & Deploy */
+    stage('Docker Build & Push & Deploy (develop only)') {
       when {
         allOf {
           branch 'develop'
@@ -99,6 +99,15 @@ docker build -t ${ECR_REGISTRY}/${IMAGE_REPO_NAME}:${DEV_TAG} .
 docker push ${ECR_REGISTRY}/${IMAGE_REPO_NAME}:${DEV_TAG}
           """
         }
+        sshagent(credentials: ['monitory-iot-lightsail']) {
+          sh """
+ssh -o StrictHostKeyChecking=no simulator@43.202.63.21 <<'EOF'
+set -e
+cd monitory-iot
+bash deploy_streamlit.sh
+EOF
+"""
+        }
       }
       /* Slack 알림 */
       post {
@@ -106,7 +115,7 @@ docker push ${ECR_REGISTRY}/${IMAGE_REPO_NAME}:${DEV_TAG}
           slackSend channel: env.SLACK_CHANNEL,
                     tokenCredentialId: env.SLACK_CRED_ID,
                     color: '#36a64f',
-                    message: """<!here> :white_check_mark: *IoT CI 성공*
+                    message: """<!here> :white_check_mark: *IoT develop branch CI/CD 성공*
 파이프라인: <${env.BUILD_URL}|열기>
 커밋: `${env.GIT_COMMIT}` – `${env.COMMIT_MSG}`
 (<${env.REPO_URL}/commit/${env.GIT_COMMIT}|커밋 보기>)
@@ -116,7 +125,7 @@ docker push ${ECR_REGISTRY}/${IMAGE_REPO_NAME}:${DEV_TAG}
           slackSend channel: env.SLACK_CHANNEL,
                     tokenCredentialId: env.SLACK_CRED_ID,
                     color: '#ff0000',
-                    message: """<!here> :x: *IoT CI 실패*
+                    message: """<!here> :x: *IoT develop branch CI/CD 실패*
 파이프라인: <${env.BUILD_URL}|열기>
 커밋: `${env.GIT_COMMIT}` – `${env.COMMIT_MSG}`
 (<${env.REPO_URL}/commit/${env.GIT_COMMIT}|커밋 보기>)
@@ -126,7 +135,7 @@ docker push ${ECR_REGISTRY}/${IMAGE_REPO_NAME}:${DEV_TAG}
     }
 
 
-    /* 4) main 전용 ─ Docker 이미지 빌드 & ECR Push */
+    /* 3) main 전용 ─ Docker 이미지 빌드 & ECR Push */
     stage('Docker Build & Push (main only)') {
       when {
         allOf {
@@ -150,7 +159,7 @@ docker push ${ECR_REGISTRY}/${IMAGE_REPO_NAME}:${PROD_TAG}
           slackSend channel: env.SLACK_CHANNEL,
                     tokenCredentialId: env.SLACK_CRED_ID,
                     color: '#36a64f',
-                    message: """<!here> :white_check_mark: *IoT CI 성공*
+                    message: """<!here> :white_check_mark: *IoT main branch CI 성공*
 파이프라인: <${env.BUILD_URL}|열기>
 커밋: `${env.GIT_COMMIT}` – `${env.COMMIT_MSG}`
 (<${env.REPO_URL}/commit/${env.GIT_COMMIT}|커밋 보기>)
@@ -160,7 +169,7 @@ docker push ${ECR_REGISTRY}/${IMAGE_REPO_NAME}:${PROD_TAG}
           slackSend channel: env.SLACK_CHANNEL,
                     tokenCredentialId: env.SLACK_CRED_ID,
                     color: '#ff0000',
-                    message: """<!here> :x: *IoT CI 실패*
+                    message: """<!here> :x: *IoT main branch CI 실패*
 파이프라인: <${env.BUILD_URL}|열기>
 커밋: `${env.GIT_COMMIT}` – `${env.COMMIT_MSG}`
 (<${env.REPO_URL}/commit/${env.GIT_COMMIT}|커밋 보기>)
