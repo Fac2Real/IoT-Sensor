@@ -25,7 +25,7 @@ class PowerSimulator(PowerContinuousSimulatorMixin,SimulatorInterface2):
             msg_count=msg_count,
             conn=conn
         )
-        self.sensor_id = f"UA10P-PWR-2406089{idx}" # Sensor ID
+        self.sensor_id = f"UA10P-PWR-`2406089`{idx}" # Sensor ID
         self.type = "power" # Sensor type
 
         # 환경센서 vs 설비센서 구분 및 파라미터 설정
