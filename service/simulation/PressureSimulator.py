@@ -31,7 +31,7 @@ class PressureSimulator(ContinuousSimulatorMixin,SimulatorInterface2):
         #########################################
         # 시뮬레이터 마다 개별적으로 사용하는 속성(토픽, 수집 데이터 초기값) 
         #########################################
-        self.sensor_id = f"UA10H-PRS-3406089{idx}" # 센서 ID
+        self.sensor_id = f"UA10H-PRS-2406089{idx}" # 센서 ID
         self.type = "pressure" # 센서 타입
 
         # 환경센서 vs 설비센서 구분 및 파라미터 설정
